@@ -1,0 +1,200 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  EMPLOYEE
+  HR_ADMIN
+  STAFF
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EventType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  LOGOUT
+  DOCUMENT_UPLOADED
+  DOCUMENT_APPROVED
+  DOCUMENT_REJECTED
+  DOCUMENT_VIEWED
+  DOCUMENT_DOWNLOADED
+  DOCUMENT_DELETED
+  USER_ROLE_UPDATED
+  USER_CREATED
+  USER_UPDATED
+  DATA_EXPORT_LARGE
+  DATA_BACKUP_COMPLETED
+  PROFILE_UPDATED
+  CONFIG_CHANGED
+  UNAUTHORIZED_ACCESS
+}
+
+enum LogStatus {
+  SUCCESS
+  FAILED
+  WARNING
+}
+
+model User {
+  id                  String                @id @default(cuid())
+  email               String                @unique
+  passwordHash        String
+  name                String
+  role                Role                  @default(EMPLOYEE)
+  employeeId          String?               @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  documents           DocumentRecord[]
+  reviews             VerificationHistory[]
+  securityLogs        SecurityLog[]
+  roles               UserRole[]
+
+  // Profile fields
+  namaLahir           String?
+  alamatLengkap       String?
+  nomorTelepon        String?
+  gelarAkademik       String?
+  gender              String?
+  birthDate           DateTime?
+
+  // Status Kepegawaian relations
+  employmentStatusId String?
+  employmentStatus   EmploymentStatus? @relation(fields: [employmentStatusId], references: [id])
+  employeeGroupId    String?
+  employeeGroup      EmployeeGroup?    @relation(fields: [employeeGroupId], references: [id])
+  employeePositionId String?
+  employeePosition   EmployeePosition? @relation(fields: [employeePositionId], references: [id])
+
+  @@index([employmentStatusId])
+  @@index([employeeGroupId])
+  @@index([employeePositionId])
+}
+
+model DocumentType {
+  id                  String                @id @default(cuid())
+  name                String                @unique
+  requiresExpiryDate  Boolean               @default(false)
+  isMandatory         Boolean               @default(false)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  records             DocumentRecord[]
+
+  // New config fields matching the mockup
+  description         String?
+  targetPositions     String?
+  maxSize             Int                   @default(5) // Max size in MB
+  allowedFormats      String                @default("PDF, JPG, PNG")
+}
+
+model DocumentRecord {
+  id                  String                @id @default(cuid())
+  ownerId             String
+  owner               User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  documentTypeId      String
+  documentType        DocumentType          @relation(fields: [documentTypeId], references: [id])
+  filePath            String
+  fileName            String
+  issueDate           DateTime?
+  expiryDate          DateTime?
+  uploadedAt          DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  verificationHistory VerificationHistory[]
+
+  @@index([ownerId])
+  @@index([expiryDate])
+}
+
+model VerificationHistory {
+  id                  String             @id @default(cuid())
+  documentRecordId    String
+  documentRecord      DocumentRecord     @relation(fields: [documentRecordId], references: [id], onDelete: Cascade)
+  status              VerificationStatus @default(PENDING)
+  step                Int                @default(1)
+  reviewerRole        Role               @default(HR_ADMIN)
+  reviewedById        String?
+  reviewedBy          User?              @relation(fields: [reviewedById], references: [id])
+  reviewedAt          DateTime?
+  reviewNote          String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([documentRecordId])
+  @@index([reviewedById])
+}
+
+model SecurityLog {
+  id          String    @id @default(cuid())
+  timestamp   DateTime  @default(now())
+  actorName   String
+  actorRole   String    // e.g. "Medical Reviewer", "System Admin", "HR Staff", "Automated", "Unauthenticated"
+  eventType   EventType
+  resource    String    // e.g. "CERT-2023-8842", "Auth Service", "USR-9921"
+  ipAddress   String?
+  status      LogStatus @default(SUCCESS)
+  metadata    String?   // JSON string for extra details
+
+  // Optional FK to User if actor is a known user
+  actorId     String?
+  actor       User?     @relation(fields: [actorId], references: [id])
+
+  @@index([timestamp])
+  @@index([eventType])
+  @@index([status])
+  @@index([actorId])
+}
+
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role
+
+  @@unique([userId, role])
+  @@index([userId])
+}
+
+model EmploymentStatus {
+  id        String          @id @default(cuid())
+  name      String          @unique // e.g., "ASN", "Non ASN"
+  groups    EmployeeGroup[]
+  users     User[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model EmployeeGroup {
+  id                 String             @id @default(cuid())
+  name               String             // e.g., "PNS", "PPPK", "BLUD"
+  employmentStatusId String
+  status             EmploymentStatus   @relation(fields: [employmentStatusId], references: [id], onDelete: Cascade)
+  positions          EmployeePosition[]
+  users              User[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@unique([name, employmentStatusId])
+  @@index([employmentStatusId])
+}
+
+model EmployeePosition {
+  id              String        @id @default(cuid())
+  name            String        // e.g., "Medis", "Keperawatan", "Full Time", "Part Time"
+  employeeGroupId String
+  group           EmployeeGroup @relation(fields: [employeeGroupId], references: [id], onDelete: Cascade)
+  users           User[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([name, employeeGroupId])
+  @@index([employeeGroupId])
+}

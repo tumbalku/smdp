@@ -1,26 +1,289 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* Jobster-inspired color palette */
+  --background: oklch(0.97 0.005 250);
+  --foreground: oklch(0.18 0.02 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 260);
+
+  /* Primary: Blue-purple accent (#647acb style) */
+  --primary: oklch(0.56 0.18 270);
+  --primary-foreground: oklch(0.98 0 0);
+
+  --secondary: oklch(0.94 0.01 250);
+  --secondary-foreground: oklch(0.3 0.05 260);
+  --muted: oklch(0.95 0.005 250);
+  --muted-foreground: oklch(0.52 0.02 260);
+  --accent: oklch(0.92 0.03 270);
+  --accent-foreground: oklch(0.3 0.05 270);
+  --destructive: oklch(0.62 0.22 25);
+  --border: oklch(0.9 0.01 250);
+  --input: oklch(0.9 0.01 250);
+  --ring: oklch(0.56 0.18 270);
+
+  --chart-1: oklch(0.56 0.18 270);
+  --chart-2: oklch(0.7 0.15 180);
+  --chart-3: oklch(0.75 0.16 140);
+  --chart-4: oklch(0.8 0.14 60);
+  --chart-5: oklch(0.65 0.2 30);
+
+  --radius: 0.625rem;
+
+  /* Dark sidebar variables (Jobster navy sidebar) */
+  --sidebar: oklch(0.2 0.04 265);
+  --sidebar-foreground: oklch(0.85 0.02 260);
+  --sidebar-primary: oklch(0.56 0.18 270);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.28 0.05 265);
+  --sidebar-accent-foreground: oklch(0.95 0.01 260);
+  --sidebar-border: oklch(0.28 0.04 265);
+  --sidebar-ring: oklch(0.56 0.18 270);
+
+  /* Custom jobster vars */
+  --jobster-sidebar-bg: #1e2139;
+  --jobster-sidebar-hover: #282c47;
+  --jobster-sidebar-active: #6c63ff;
+  --jobster-accent: #6c63ff;
+  --jobster-accent-light: #e8e7ff;
+  --jobster-success: #22c55e;
+  --jobster-warning: #f59e0b;
+  --jobster-danger: #ef4444;
+}
+
+.dark {
+  --background: oklch(0.15 0.02 260);
+  --foreground: oklch(0.95 0.01 260);
+  --card: oklch(0.2 0.03 265);
+  --card-foreground: oklch(0.95 0.01 260);
+  --popover: oklch(0.2 0.03 265);
+  --popover-foreground: oklch(0.95 0.01 260);
+  --primary: oklch(0.65 0.18 270);
+  --primary-foreground: oklch(0.1 0 0);
+  --secondary: oklch(0.25 0.03 265);
+  --secondary-foreground: oklch(0.95 0.01 260);
+  --muted: oklch(0.25 0.03 265);
+  --muted-foreground: oklch(0.65 0.02 260);
+  --accent: oklch(0.28 0.05 265);
+  --accent-foreground: oklch(0.95 0.01 260);
+  --destructive: oklch(0.65 0.22 25);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.65 0.18 270);
+  --chart-1: oklch(0.65 0.18 270);
+  --chart-2: oklch(0.75 0.15 180);
+  --chart-3: oklch(0.78 0.16 140);
+  --chart-4: oklch(0.82 0.14 60);
+  --chart-5: oklch(0.7 0.2 30);
+  --sidebar: oklch(0.18 0.03 265);
+  --sidebar-foreground: oklch(0.85 0.02 260);
+  --sidebar-primary: oklch(0.65 0.18 270);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.25 0.04 265);
+  --sidebar-accent-foreground: oklch(0.95 0.01 260);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.65 0.18 270);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.75 0.02 260);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.6 0.05 260);
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* Penyesuaian tema FullCalendar untuk menyatu dengan SMDP theme */
+.smdp-custom-calendar .fc {
+  --fc-border-color: var(--border);
+  --fc-button-bg-color: var(--card);
+  --fc-button-border-color: var(--border);
+  --fc-button-text-color: var(--foreground);
+  --fc-button-hover-bg-color: var(--muted);
+  --fc-button-hover-border-color: var(--border);
+  --fc-button-active-bg-color: var(--muted);
+  --fc-button-active-border-color: var(--border);
+  --fc-today-bg-color: rgba(108, 99, 255, 0.08); /* Highlight hari ini */
+  font-family: inherit;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Centered circular day numbers */
+.smdp-custom-calendar .fc-daygrid-day-number {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50%;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  float: none !important;
+  text-decoration: none !important;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  transition: all 0.15s ease-in-out;
+}
+
+.smdp-custom-calendar .fc-daygrid-day-top {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  float: none !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Sunday column headers and numbers are colored red */
+.smdp-custom-calendar .fc-day-sun .fc-daygrid-day-number {
+  color: #ef4444 !important;
+}
+
+.smdp-custom-calendar .fc-col-header-cell.fc-day-sun .fc-col-header-cell-cushion {
+  color: #ef4444 !important;
+}
+
+/* National Holiday (Libur Nasional): Solid red circle with white text */
+.smdp-custom-calendar .smdp-libur-day .fc-daygrid-day-number {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* Joint Holiday (Cuti Bersama): Soft pink circle with red text */
+.smdp-custom-calendar .smdp-cuti-day .fc-daygrid-day-number {
+  background-color: #fee2e2 !important;
+  color: #ef4444 !important;
+  font-weight: 700;
+}
+
+/* In dark mode, cuti bersama soft pink circle needs a slightly darker/higher contrast pink */
+.dark .smdp-custom-calendar .smdp-cuti-day .fc-daygrid-day-number {
+  background-color: rgba(239, 68, 68, 0.22) !important;
+  color: #fca5a5 !important;
+  font-weight: 700;
+}
+
+/* Header cushions */
+.smdp-custom-calendar .fc-col-header-cell-cushion {
+  color: var(--foreground);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-decoration: none !important;
+  padding: 6px 0 !important;
+  display: block;
+}
+
+/* Standard scrollgrids and borders */
+.smdp-custom-calendar .fc-theme-standard td, 
+.smdp-custom-calendar .fc-theme-standard th,
+.smdp-custom-calendar .fc-theme-standard .fc-scrollgrid {
+  border: 1px solid var(--border) !important;
+}
+
+/* Force cell rows to be compressed and center day numbers in the entire grid cell */
+.smdp-custom-calendar td.fc-daygrid-day {
+  height: 42px !important;
+}
+
+.smdp-custom-calendar .fc-daygrid-day-frame {
+  height: 100% !important;
+  min-height: 100% !important;
+  cursor: pointer;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+
+/* Hide the background events blocks from layout since we highlight the circular day numbers instead */
+.smdp-custom-calendar .fc-daygrid-bg-harness {
+  display: none !important;
 }
