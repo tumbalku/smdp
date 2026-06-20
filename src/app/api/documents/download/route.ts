@@ -77,37 +77,64 @@ export async function GET(req: NextRequest) {
       return new Response("Forbidden: Access denied", { status: 403 });
     }
 
-    // 3. Resolve absolute path
-    // turbopackIgnore: suppress NFT warning — path is sandboxed to LOCAL_STORAGE_PATH
-    const baseDir = path.resolve(process.env.LOCAL_STORAGE_PATH || "./storage");
-    const absolutePath = path.join(baseDir, filePath);
-
-    // Prevent path traversal outside the base storage directory
-    const relative = path.relative(baseDir, absolutePath);
-    const isSafe = relative && !relative.startsWith("..") && !path.isAbsolute(relative);
-    if (!isSafe) {
-      logSecurityEvent({
-        actorName: session.user.name || session.user.email || "Unknown",
-        actorRole: session.user.role,
-        actorId: session.user.id,
-        eventType: EventType.UNAUTHORIZED_ACCESS,
-        resource: `TRAVERSAL-${filePath.slice(0, 20)}`,
-        ipAddress: getClientIp(req as unknown as Request),
-        status: LogStatus.FAILED,
-        metadata: { error: "Upaya akses path ilegal (path traversal)." },
-      });
-      return new Response("Forbidden: Invalid file path", { status: 403 });
-    }
-
-    // 4. Read file
-    const fileBuffer = await fs.readFile(absolutePath);
-
-    // Get mime type based on extension
-    const ext = path.extname(doc.fileName).toLowerCase();
+    // 3. Resolve file source (Local disk or Cloud storage URL)
+    let fileBuffer: Buffer;
     let contentType = "application/octet-stream";
+
+    const ext = path.extname(doc.fileName).toLowerCase();
     if (ext === ".pdf") contentType = "application/pdf";
     else if (ext === ".png") contentType = "image/png";
     else if (ext === ".jpg" || ext === ".jpeg") contentType = "image/jpeg";
+
+    if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+      // Fetch the file from the cloud storage URL (proxying it securely)
+      const cloudResponse = await fetch(filePath);
+      if (!cloudResponse.ok) {
+        logSecurityEvent({
+          actorName: session.user.name || session.user.email || "Unknown",
+          actorRole: session.user.role,
+          actorId: session.user.id,
+          eventType: EventType.DOCUMENT_DOWNLOADED,
+          resource: `FILE-${filePath.slice(0, 15)}`,
+          ipAddress: getClientIp(req as unknown as Request),
+          status: LogStatus.FAILED,
+          metadata: { error: `Gagal mengambil file dari cloud storage: ${cloudResponse.statusText}` },
+        });
+        return new Response("Not Found: Cloud storage file not found", { status: 404 });
+      }
+      const arrayBuffer = await cloudResponse.arrayBuffer();
+      fileBuffer = Buffer.from(arrayBuffer);
+      
+      // Override content type from cloud headers if available
+      const cloudContentType = cloudResponse.headers.get("content-type");
+      if (cloudContentType) {
+        contentType = cloudContentType;
+      }
+    } else {
+      // Handle local disk file path
+      // turbopackIgnore: suppress NFT warning — path is sandboxed to LOCAL_STORAGE_PATH
+      const baseDir = path.resolve(process.env.LOCAL_STORAGE_PATH || "./storage");
+      const absolutePath = path.join(baseDir, filePath);
+
+      // Prevent path traversal outside the base storage directory
+      const relative = path.relative(baseDir, absolutePath);
+      const isSafe = relative && !relative.startsWith("..") && !path.isAbsolute(relative);
+      if (!isSafe) {
+        logSecurityEvent({
+          actorName: session.user.name || session.user.email || "Unknown",
+          actorRole: session.user.role,
+          actorId: session.user.id,
+          eventType: EventType.UNAUTHORIZED_ACCESS,
+          resource: `TRAVERSAL-${filePath.slice(0, 20)}`,
+          ipAddress: getClientIp(req as unknown as Request),
+          status: LogStatus.FAILED,
+          metadata: { error: "Upaya akses path ilegal (path traversal)." },
+        });
+        return new Response("Forbidden: Invalid file path", { status: 403 });
+      }
+
+      fileBuffer = await fs.readFile(absolutePath);
+    }
 
     // Log success
     logSecurityEvent({
@@ -120,7 +147,7 @@ export async function GET(req: NextRequest) {
       status: LogStatus.SUCCESS,
     });
 
-    return new Response(fileBuffer, {
+    return new Response(new Uint8Array(fileBuffer), {
       headers: {
         "Content-Type": contentType,
         "Content-Disposition": `inline; filename="${encodeURIComponent(
