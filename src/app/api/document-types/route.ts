@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { documentTypeSchema, documentTypeUpdateArraySchema } from "@/lib/validations/documentTypeValidation";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     const documentTypes = await prisma.documentType.findMany({
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ data: documentTypes, error: null });
-  } catch (error: any) {
+  } catch (error) {
     console.error("GET Document Types Error:", error);
     return NextResponse.json(
       {
@@ -50,15 +51,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const { name, description, targetPositions, isMandatory, requiresExpiryDate, maxSize, allowedFormats } = body;
-
-    if (!name) {
+    const body = await req.json().catch(() => ({}));
+    const parsed = documentTypeSchema.safeParse(body);
+    if (!parsed.success) {
+      const errMsg = parsed.error.errors.map((e) => e.message).join(", ");
       return NextResponse.json(
-        { data: null, error: { code: "BAD_REQUEST", message: "Nama dokumen wajib diisi." } },
+        { data: null, error: { code: "BAD_REQUEST", message: errMsg } },
         { status: 400 }
       );
     }
+
+    const { name, description, targetPositions, isMandatory, requiresExpiryDate, maxSize, allowedFormats } = parsed.data;
 
     const newType = await prisma.documentType.create({
       data: {
@@ -73,7 +76,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ data: newType, error: null });
-  } catch (error: any) {
+  } catch (error) {
     console.error("POST Document Type Error:", error);
     return NextResponse.json(
       {
@@ -95,15 +98,17 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    if (!Array.isArray(body)) {
+    const body = await req.json().catch(() => ({}));
+    const parsed = documentTypeUpdateArraySchema.safeParse(body);
+    if (!parsed.success) {
+      const errMsg = parsed.error.errors.map((e) => e.message).join(", ");
       return NextResponse.json(
-        { data: null, error: { code: "BAD_REQUEST", message: "Body harus berupa array." } },
+        { data: null, error: { code: "BAD_REQUEST", message: errMsg } },
         { status: 400 }
       );
     }
 
-    const updates = body.map((item) => {
+    const updates = parsed.data.map((item) => {
       return prisma.documentType.update({
         where: { id: item.id },
         data: {
@@ -121,7 +126,7 @@ export async function PUT(req: NextRequest) {
     const updatedTypes = await prisma.$transaction(updates);
 
     return NextResponse.json({ data: updatedTypes, error: null });
-  } catch (error: any) {
+  } catch (error) {
     console.error("PUT Document Types Error:", error);
     return NextResponse.json(
       {

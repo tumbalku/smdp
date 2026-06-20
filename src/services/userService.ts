@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { Role } from "@prisma/client";
+import { Role, Prisma } from "@prisma/client";
 
 export async function getUserByEmail(email: string) {
   return prisma.user.findUnique({
@@ -43,6 +43,7 @@ export async function getUserById(id: string) {
   const mappedRoles = user.roles.map((r) => r.role);
   if (mappedRoles.length === 0) mappedRoles.push(user.role);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { roles, ...userWithoutRelation } = user;
   return {
     ...userWithoutRelation,
@@ -115,6 +116,7 @@ export async function verifyCredentials(email: string, passwordPlain: string) {
   const mappedRoles = user.roles.map((r) => r.role);
   if (mappedRoles.length === 0) mappedRoles.push(user.role);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { passwordHash, roles, ...userWithoutPassword } = user;
   return {
     ...userWithoutPassword,
@@ -278,7 +280,7 @@ export async function getPaginatedUsers(params: {
   roleFilter?: string;
 }) {
   const { page, pageSize, search, roleFilter } = params;
-  const where: any = {};
+  const where: Prisma.UserWhereInput = {};
 
   if (roleFilter && roleFilter !== "ALL") {
     where.OR = [
@@ -333,6 +335,7 @@ export async function getPaginatedUsers(params: {
   const mappedUsers = users.map((u) => {
     const mappedRoles = u.roles.map((r) => r.role);
     if (mappedRoles.length === 0) mappedRoles.push(u.role);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { roles, ...userWithoutRelation } = u;
     return {
       ...userWithoutRelation,

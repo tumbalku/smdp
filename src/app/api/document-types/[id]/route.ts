@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || (session.user.role !== "HR_ADMIN" && session.user.role !== "STAFF")) {
@@ -38,7 +38,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     });
 
     return NextResponse.json({ data: { success: true }, error: null });
-  } catch (error: any) {
+  } catch (error) {
     console.error("DELETE Document Type Error:", error);
     return NextResponse.json(
       {

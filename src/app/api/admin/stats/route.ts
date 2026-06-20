@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { verifyApiSession } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
 function calculateAge(birthDate: Date): number {
@@ -13,14 +12,9 @@ function calculateAge(birthDate: Date): number {
   return age;
 }
 
-export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: { message: "Unauthorized" } }, { status: 401 });
-  }
-  if (session.user.role !== "HR_ADMIN" && session.user.role !== "STAFF") {
-    return NextResponse.json({ error: { message: "Forbidden" } }, { status: 403 });
-  }
+export async function GET() {
+  const { session, errorResponse } = await verifyApiSession(["HR_ADMIN", "STAFF"]);
+  if (errorResponse) return errorResponse;
 
   try {
     const users = await prisma.user.findMany({
@@ -122,8 +116,9 @@ export async function GET(req: NextRequest) {
         retirementList: retirementDetails,
       },
     });
-  } catch (err: any) {
-    console.error("[Stats API] GET Error:", err);
-    return NextResponse.json({ error: { message: err.message || "Gagal memproses statistik kepegawaian." } }, { status: 500 });
+  } catch (err) {
+    const error = err as Error;
+    console.error("[Stats API] GET Error:", error);
+    return NextResponse.json({ error: { message: error.message || "Gagal memproses statistik kepegawaian." } }, { status: 500 });
   }
 }

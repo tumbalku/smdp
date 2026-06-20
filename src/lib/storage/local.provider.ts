@@ -37,8 +37,8 @@ export class LocalStorageProvider implements StorageProvider {
     const absolutePath = path.join(this.getBaseDir(), filePath);
     try {
       await fs.unlink(absolutePath);
-    } catch (error: any) {
-      if (error.code !== "ENOENT") {
+    } catch (error) {
+      if ((error as { code?: string }).code !== "ENOENT") {
         throw error;
       }
     }

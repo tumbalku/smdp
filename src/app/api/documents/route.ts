@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
       { data: null, error: { code: "FORBIDDEN", message: "Akses ditolak." } },
       { status: 403 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("GET Documents Error:", error);
     return NextResponse.json(
       {

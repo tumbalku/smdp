@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { verifyApiSession } from "@/lib/auth-utils";
 import { getUserById, updateUserProfile } from "@/services/userService";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { data: null, error: { code: "UNAUTHORIZED", message: "Belum login." } },
-        { status: 401 }
-      );
-    }
+    const { session, errorResponse } = await verifyApiSession();
+    if (errorResponse) return errorResponse;
 
     const userProfile = await getUserById(session.user.id);
 
@@ -30,7 +23,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ data: userProfile, error: null });
-  } catch (error: any) {
+  } catch (error) {
     console.error("GET Profile Error:", error);
     return NextResponse.json(
       {
@@ -44,14 +37,8 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { data: null, error: { code: "UNAUTHORIZED", message: "Belum login." } },
-        { status: 401 }
-      );
-    }
+    const { session, errorResponse } = await verifyApiSession();
+    if (errorResponse) return errorResponse;
 
     const body = await req.json();
     const { namaLahir, alamatLengkap, nomorTelepon, gelarAkademik, gender, birthDate } = body;
@@ -66,7 +53,7 @@ export async function PUT(req: NextRequest) {
     });
 
     return NextResponse.json({ data: updatedProfile, error: null });
-  } catch (error: any) {
+  } catch (error) {
     console.error("PUT Profile Error:", error);
     return NextResponse.json(
       {

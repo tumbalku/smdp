@@ -1,4 +1,4 @@
-import { AuthOptions } from "next-auth";
+import { AuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -28,7 +28,7 @@ export const authOptions: AuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
-          } as any;
+          } as User;
         } catch (error) {
           console.error("Auth authorize error:", error);
           return null;
@@ -40,7 +40,7 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role;
+        token.role = user.role;
       }
       return token;
     },

@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { verifyApiSession } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { EventType, LogStatus, Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.json({ error: { message: "Unauthorized" } }, { status: 401 });
-  }
-  if (session.user.role !== "HR_ADMIN" && session.user.role !== "STAFF") {
-    return NextResponse.json({ error: { message: "Forbidden" } }, { status: 403 });
-  }
+  const { session, errorResponse } = await verifyApiSession(["HR_ADMIN", "STAFF"]);
+  if (errorResponse) return errorResponse;
 
   const { searchParams } = req.nextUrl;
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));

@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -19,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, File, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, AlertCircle, Loader2 } from "lucide-react";
 
 interface DocumentType {
   id: string;
@@ -30,20 +31,21 @@ interface DocumentType {
   allowedFormats?: string;
 }
 
-interface UploadDocumentModalProps {
+interface UploadModalProps {
   open: boolean;
   onClose: () => void;
   onUploadSuccess: () => void;
   preSelectedType?: DocumentType | null;
+  docTypes: DocumentType[];
 }
 
-export default function UploadDocumentModal({
+export function UploadModal({
   open,
   onClose,
   onUploadSuccess,
   preSelectedType = null,
-}: UploadDocumentModalProps) {
-  const [docTypes, setDocTypes] = useState<DocumentType[]>([]);
+  docTypes,
+}: UploadModalProps) {
   const [selectedTypeId, setSelectedTypeId] = useState("");
   const [issueDate, setIssueDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -61,16 +63,6 @@ export default function UploadDocumentModal({
 
   useEffect(() => {
     if (open) {
-      // Fetch document types
-      fetch("/api/document-types")
-        .then((res) => res.json())
-        .then((resData) => {
-          if (resData.data) {
-            setDocTypes(resData.data);
-          }
-        })
-        .catch((err) => console.error("Error fetching types:", err));
-
       // Reset state
       setSelectedTypeId(preSelectedType ? preSelectedType.id : "");
       setIssueDate("");
@@ -172,7 +164,6 @@ export default function UploadDocumentModal({
       if (issueDate) formData.append("issueDate", issueDate);
       if (expiryDate) formData.append("expiryDate", expiryDate);
 
-
       const res = await fetch("/api/documents/upload", {
         method: "POST",
         body: formData,
@@ -186,8 +177,9 @@ export default function UploadDocumentModal({
 
       onUploadSuccess();
       onClose();
-    } catch (err: any) {
-      setErrorMsg(err.message || "Gagal mengunggah dokumen.");
+    } catch (err) {
+      const error = err as Error;
+      setErrorMsg(error.message || "Gagal mengunggah dokumen.");
     } finally {
       setLoading(false);
     }
@@ -243,7 +235,6 @@ export default function UploadDocumentModal({
                       }
                     }
                   }}
-
                 >
                   <SelectTrigger id="docType" className="w-full">
                     <SelectValue placeholder="Pilih Jenis Dokumen" />
@@ -299,7 +290,6 @@ export default function UploadDocumentModal({
                 </div>
               </div>
             )}
-
 
             <div className="space-y-2">
               <div
@@ -365,3 +355,4 @@ export default function UploadDocumentModal({
     </Dialog>
   );
 }
+export default UploadModal;

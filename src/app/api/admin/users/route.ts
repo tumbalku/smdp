@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getPaginatedUsers, createUser, updateUser, updateUserRoles, getUserByEmail } from "@/services/userService";
+import { getPaginatedUsers, createUser, updateUser, getUserByEmail } from "@/services/userService";
 import { logSecurityEvent, getClientIp } from "@/services/securityLogService";
 import { EventType, Role, LogStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { createUserSchema, updateUserSchema } from "@/lib/validations/userValidation";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -71,60 +72,39 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const { 
-      name, 
-      email, 
-      password, 
-      role, 
-      roles, 
-      employeeId, 
-      gender, 
-      birthDate,
-      employmentStatusId,
-      employeeGroupId,
-      employeePositionId 
-    } = body;
+    const dataToParse = {
+      ...body,
+      roles: body.roles || (body.role ? [body.role] : ["EMPLOYEE"]),
+    };
 
-    if (!name || !email || !password || !employeeId || !String(employeeId).trim()) {
+    const parsed = createUserSchema.safeParse(dataToParse);
+    if (!parsed.success) {
+      const errMsg = parsed.error.errors.map((e) => e.message).join(", ");
       logSecurityEvent({
         actorName: session.user.name || "Admin/Staff",
         actorRole: session.user.role,
         actorId: session.user.id,
         eventType: EventType.USER_CREATED,
-        resource: email || "Missing Email",
+        resource: body.email || "Missing Email",
         ipAddress: ip,
         status: LogStatus.FAILED,
-        metadata: { error: "Nama, email, password, dan NIP wajib diisi." },
+        metadata: { error: errMsg },
       });
-      return NextResponse.json({ error: { message: "Nama, email, password, dan NIP wajib diisi." } }, { status: 400 });
+      return NextResponse.json({ error: { message: errMsg } }, { status: 400 });
     }
 
-    // Determine roles array
-    let selectedRoles: Role[] = [];
-    if (roles && Array.isArray(roles)) {
-      selectedRoles = roles as Role[];
-    } else if (role) {
-      selectedRoles = [role as Role];
-    } else {
-      selectedRoles = [Role.EMPLOYEE];
-    }
-
-    // Check validity of roles
-    for (const r of selectedRoles) {
-      if (!Object.values(Role).includes(r)) {
-        logSecurityEvent({
-          actorName: session.user.name || "Admin/Staff",
-          actorRole: session.user.role,
-          actorId: session.user.id,
-          eventType: EventType.USER_CREATED,
-          resource: email,
-          ipAddress: ip,
-          status: LogStatus.FAILED,
-          metadata: { error: `Peran tidak valid: ${r}` },
-        });
-        return NextResponse.json({ error: { message: `Peran tidak valid: ${r}` } }, { status: 400 });
-      }
-    }
+    const {
+      name,
+      email,
+      password,
+      roles: selectedRoles,
+      employeeId,
+      gender,
+      birthDate,
+      employmentStatusId,
+      employeeGroupId,
+      employeePositionId,
+    } = parsed.data;
 
     // Check email uniqueness
     const existingUser = await getUserByEmail(email);
@@ -240,65 +220,35 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
-    const { 
-      id, 
-      name, 
-      email, 
-      employeeId, 
-      gender, 
-      birthDate, 
-      roles, 
-      employmentStatusId, 
-      employeeGroupId, 
-      employeePositionId 
-    } = body;
-
-    if (!id) {
+    const body = await req.json().catch(() => ({}));
+    const parsed = updateUserSchema.safeParse(body);
+    if (!parsed.success) {
+      const errMsg = parsed.error.errors.map((e) => e.message).join(", ");
       logSecurityEvent({
         actorName: session.user.name || "Admin/Staff",
         actorRole: session.user.role,
         actorId: session.user.id,
         eventType: EventType.USER_ROLE_UPDATED,
-        resource: "Missing ID",
+        resource: body.id ? `USER-${body.id}` : "Missing ID",
         ipAddress: ip,
         status: LogStatus.FAILED,
-        metadata: { error: "ID pegawai wajib diisi." },
+        metadata: { error: errMsg },
       });
-      return NextResponse.json({ error: { message: "ID pegawai wajib diisi." } }, { status: 400 });
+      return NextResponse.json({ error: { message: errMsg } }, { status: 400 });
     }
 
-    if (roles && !Array.isArray(roles)) {
-      logSecurityEvent({
-        actorName: session.user.name || "Admin/Staff",
-        actorRole: session.user.role,
-        actorId: session.user.id,
-        eventType: EventType.USER_ROLE_UPDATED,
-        resource: `USER-${id}`,
-        ipAddress: ip,
-        status: LogStatus.FAILED,
-        metadata: { error: "Peran harus berupa array." },
-      });
-      return NextResponse.json({ error: { message: "Peran harus berupa array." } }, { status: 400 });
-    }
-
-    if (roles) {
-      for (const r of roles) {
-        if (!Object.values(Role).includes(r)) {
-          logSecurityEvent({
-            actorName: session.user.name || "Admin/Staff",
-            actorRole: session.user.role,
-            actorId: session.user.id,
-            eventType: EventType.USER_ROLE_UPDATED,
-            resource: `USER-${id}`,
-            ipAddress: ip,
-            status: LogStatus.FAILED,
-            metadata: { error: `Peran tidak valid: ${r}` },
-          });
-          return NextResponse.json({ error: { message: `Peran tidak valid: ${r}` } }, { status: 400 });
-        }
-      }
-    }
+    const {
+      id,
+      name,
+      email,
+      employeeId,
+      gender,
+      birthDate,
+      roles,
+      employmentStatusId,
+      employeeGroupId,
+      employeePositionId,
+    } = parsed.data;
 
     const oldUser = await prisma.user.findUnique({
       where: { id },
