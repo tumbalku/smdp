@@ -3,7 +3,17 @@ import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
 export async function proxy(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  let token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  // Fallback for production HTTPS if NEXTAUTH_URL has HTTP scheme in environment variables
+  if (!token) {
+    token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: false,
+    });
+  }
+
   const { pathname } = req.nextUrl;
 
   // Allow next-auth API routes to bypass redirect checks
