@@ -7,4 +7,5 @@ export interface DocumentType {
   requiresExpiryDate: boolean;
   maxSize: number;
   allowedFormats: string;
+  icon: string;
 }

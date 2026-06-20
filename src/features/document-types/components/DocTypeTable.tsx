@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { DocumentType } from "../types";
+import { DOCUMENT_ICONS, getDocumentIcon } from "../utils/icons";
 
 interface DocTypeTableProps {
   editedTypes: DocumentType[];
@@ -42,7 +43,7 @@ export function DocTypeTable({
     <Table className="table-fixed w-full min-w-[1080px]">
       <TableHeader>
         <TableRow className="hover:bg-transparent">
-          <TableHead className="font-bold text-xs w-[160px]">Nama Dokumen</TableHead>
+          <TableHead className="font-bold text-xs w-[180px]">Nama Dokumen</TableHead>
           <TableHead className="font-bold text-xs w-[240px]">Deskripsi</TableHead>
           <TableHead className="font-bold text-xs w-[110px]">Batas Ukuran</TableHead>
           <TableHead className="font-bold text-xs w-[170px]">Format Diizinkan</TableHead>
@@ -56,11 +57,42 @@ export function DocTypeTable({
         {editedTypes.map((type) => (
           <TableRow key={type.id} className="hover:bg-muted/50">
             <TableCell className="align-middle">
-              <Input
-                value={type.name}
-                onChange={(e) => onFieldChange(type.id, "name", e.target.value)}
-                className="font-extrabold text-xs h-8 text-foreground bg-transparent"
-              />
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 cursor-pointer flex-shrink-0"
+                        title="Pilih Ikon"
+                      >
+                        {React.createElement(getDocumentIcon(type.icon), {
+                          className: "w-4 h-4 text-[#6c63ff]",
+                        })}
+                      </Button>
+                    }
+                  />
+                  <DropdownMenuContent align="start" className="w-[180px] max-h-[220px] overflow-y-auto">
+                    {DOCUMENT_ICONS.map((item) => (
+                      <DropdownMenuCheckboxItem
+                        key={item.value}
+                        checked={type.icon === item.value}
+                        onCheckedChange={() => onFieldChange(type.id, "icon", item.value)}
+                        className="text-xs font-semibold flex items-center gap-2"
+                      >
+                        {React.createElement(item.icon, { className: "w-3.5 h-3.5 mr-1" })}
+                        <span>{item.label}</span>
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Input
+                  value={type.name}
+                  onChange={(e) => onFieldChange(type.id, "name", e.target.value)}
+                  className="font-extrabold text-xs h-8 text-foreground bg-transparent"
+                />
+              </div>
             </TableCell>
             <TableCell className="align-middle">
               <Input

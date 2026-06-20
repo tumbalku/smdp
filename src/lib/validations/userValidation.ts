@@ -10,6 +10,7 @@ export const createUserSchema = z.object({
   roles: z.array(z.enum(["EMPLOYEE", "HR_ADMIN", "STAFF"])).min(1, "Pilih minimal satu peran"),
   employmentStatusId: z.string().optional().nullable(),
   employeeGroupId: z.string().optional().nullable(),
+  professionGroupId: z.string().optional().nullable(),
   employeePositionId: z.string().optional().nullable(),
 });
 
@@ -23,6 +24,7 @@ export const updateUserSchema = z.object({
   roles: z.array(z.enum(["EMPLOYEE", "HR_ADMIN", "STAFF"])).min(1, "Pilih minimal satu peran").optional(),
   employmentStatusId: z.string().optional().nullable(),
   employeeGroupId: z.string().optional().nullable(),
+  professionGroupId: z.string().optional().nullable(),
   employeePositionId: z.string().optional().nullable(),
 });
 

@@ -69,14 +69,17 @@ model User {
 
   // Status Kepegawaian relations
   employmentStatusId String?
-  employmentStatus   EmploymentStatus? @relation(fields: [employmentStatusId], references: [id])
+  employmentStatus   EmploymentStatus? @relation(fields: [employmentStatusId], references: [id], onDelete: SetNull)
   employeeGroupId    String?
-  employeeGroup      EmployeeGroup?    @relation(fields: [employeeGroupId], references: [id])
+  employeeGroup      EmployeeGroup?    @relation(fields: [employeeGroupId], references: [id], onDelete: SetNull)
+  professionGroupId  String?
+  professionGroup    ProfessionGroup?  @relation(fields: [professionGroupId], references: [id], onDelete: SetNull)
   employeePositionId String?
-  employeePosition   EmployeePosition? @relation(fields: [employeePositionId], references: [id])
+  employeePosition   EmployeePosition? @relation(fields: [employeePositionId], references: [id], onDelete: SetNull)
 
   @@index([employmentStatusId])
   @@index([employeeGroupId])
+  @@index([professionGroupId])
   @@index([employeePositionId])
 }
 
@@ -94,6 +97,7 @@ model DocumentType {
   targetPositions     String?
   maxSize             Int                   @default(5) // Max size in MB
   allowedFormats      String                @default("PDF, JPG, PNG")
+  icon                String                @default("FileText")
 }
 
 model DocumentRecord {
@@ -177,7 +181,6 @@ model EmployeeGroup {
   name               String             // e.g., "PNS", "PPPK", "BLUD"
   employmentStatusId String
   status             EmploymentStatus   @relation(fields: [employmentStatusId], references: [id], onDelete: Cascade)
-  positions          EmployeePosition[]
   users              User[]
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -186,15 +189,24 @@ model EmployeeGroup {
   @@index([employmentStatusId])
 }
 
-model EmployeePosition {
-  id              String        @id @default(cuid())
-  name            String        // e.g., "Medis", "Keperawatan", "Full Time", "Part Time"
-  employeeGroupId String
-  group           EmployeeGroup @relation(fields: [employeeGroupId], references: [id], onDelete: Cascade)
-  users           User[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+model ProfessionGroup {
+  id          String             @id @default(cuid())
+  name        String             @unique // e.g., "Medis", "Keperawatan", "Kebidanan", "Kefarmasian", "Administrasi"
+  positions   EmployeePosition[]
+  users       User[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
 
-  @@unique([name, employeeGroupId])
-  @@index([employeeGroupId])
+model EmployeePosition {
+  id                String          @id @default(cuid())
+  name              String          // e.g., "Dokter Umum"
+  professionGroupId String
+  professionGroup   ProfessionGroup @relation(fields: [professionGroupId], references: [id], onDelete: Cascade)
+  users             User[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([name, professionGroupId])
+  @@index([professionGroupId])
 }

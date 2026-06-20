@@ -8,6 +8,7 @@ export const documentTypeSchema = z.object({
   requiresExpiryDate: z.boolean().default(false),
   maxSize: z.number().min(1, "Batas ukuran minimal 1MB").default(5),
   allowedFormats: z.string().default("PDF, JPG, PNG"),
+  icon: z.string().default("FileText").optional(),
 });
 
 export const documentTypeUpdateArraySchema = z.array(

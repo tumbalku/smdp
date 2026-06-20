@@ -40,16 +40,10 @@ export function useDocumentTypes() {
     try {
       const res = await fetch("/api/admin/employment-categories");
       const resData = await res.json();
-      if (res.ok && resData.data) {
-        const uniquePositions = Array.from(
-          new Set(
-            resData.data.flatMap((status: any) =>
-              status.groups.flatMap((group: any) =>
-                group.positions.map((pos: any) => pos.name)
-              )
-            )
-          )
-        ).sort() as string[];
+      if (res.ok && resData.data && resData.data.professionGroups) {
+        const uniquePositions = resData.data.professionGroups
+          .map((pg: any) => pg.name)
+          .sort() as string[];
         setPositions(uniquePositions);
       }
     } catch (err) {
@@ -117,6 +111,7 @@ export function useDocumentTypes() {
     targetPositions: string[];
     isMandatory: boolean;
     requiresExpiry: boolean;
+    icon: string;
   }) => {
     setCreateLoading(true);
     setErrorMsg("");
@@ -132,6 +127,7 @@ export function useDocumentTypes() {
           requiresExpiryDate: formData.requiresExpiry,
           maxSize: formData.maxSize,
           allowedFormats: formData.formats,
+          icon: formData.icon,
         }),
       });
 

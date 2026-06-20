@@ -103,6 +103,7 @@ export async function POST(req: NextRequest) {
       birthDate,
       employmentStatusId,
       employeeGroupId,
+      professionGroupId,
       employeePositionId,
     } = parsed.data;
 
@@ -152,6 +153,7 @@ export async function POST(req: NextRequest) {
       birthDate: birthDate ? new Date(birthDate) : null,
       employmentStatusId: employmentStatusId || null,
       employeeGroupId: employeeGroupId || null,
+      professionGroupId: professionGroupId || null,
       employeePositionId: employeePositionId || null,
     });
 
@@ -247,6 +249,7 @@ export async function PATCH(req: NextRequest) {
       roles,
       employmentStatusId,
       employeeGroupId,
+      professionGroupId,
       employeePositionId,
     } = parsed.data;
 
@@ -317,6 +320,7 @@ export async function PATCH(req: NextRequest) {
       roles: roles as Role[] | undefined,
       employmentStatusId: employmentStatusId || null,
       employeeGroupId: employeeGroupId || null,
+      professionGroupId: professionGroupId || null,
       employeePositionId: employeePositionId || null,
     });
 

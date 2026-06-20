@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from "react";
-import { User, EmploymentStatusOption, UserFormData } from "../types";
+import { User, EmploymentStatusOption, ProfessionGroupOption, UserFormData } from "../types";
 
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -10,9 +10,15 @@ export function useUsers() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [stats, setStats] = useState<{
+    statusGenderStats: { name: string; value: number }[];
+    positionStats: { name: string; count: number }[];
+  } | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
 
   // Master Kepegawaian states
-  const [categories, setCategories] = useState<EmploymentStatusOption[]>([]);
+  const [employmentStatuses, setEmploymentStatuses] = useState<EmploymentStatusOption[]>([]);
+  const [professionGroups, setProfessionGroups] = useState<ProfessionGroupOption[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   // Filter & Search states
@@ -38,13 +44,32 @@ export function useUsers() {
     try {
       const res = await fetch("/api/admin/employment-categories");
       const resData = await res.json();
-      if (res.ok && resData.success) {
-        setCategories(resData.data || []);
+      if (res.ok && resData.success && resData.data) {
+        setEmploymentStatuses(resData.data.employmentStatuses || []);
+        setProfessionGroups(resData.data.professionGroups || []);
       }
     } catch (err) {
       console.error("Gagal memuat kategori kepegawaian:", err);
     } finally {
       setCategoriesLoading(false);
+    }
+  }, []);
+
+  const fetchStats = useCallback(async () => {
+    setStatsLoading(true);
+    try {
+      const res = await fetch("/api/admin/stats");
+      const resData = await res.json();
+      if (res.ok && resData.data) {
+        setStats({
+          statusGenderStats: resData.data.statusGenderStats || [],
+          positionStats: resData.data.positionStats || [],
+        });
+      }
+    } catch (err) {
+      console.error("Gagal memuat statistik pegawai:", err);
+    } finally {
+      setStatsLoading(false);
     }
   }, []);
 
@@ -68,13 +93,15 @@ export function useUsers() {
       } else {
         throw new Error(resData.error?.message || "Gagal mengambil data pegawai.");
       }
+
+      fetchStats();
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "Gagal menghubungkan ke server.");
     } finally {
       setLoading(false);
     }
-  }, [page, search, roleFilter]);
+  }, [page, search, roleFilter, fetchStats]);
 
   useEffect(() => {
     fetchCategories();
@@ -186,7 +213,10 @@ export function useUsers() {
     setErrorMsg,
     successMsg,
     setSuccessMsg,
-    categories,
+    stats,
+    statsLoading,
+    employmentStatuses,
+    professionGroups,
     categoriesLoading,
     search,
     setSearch,
@@ -195,6 +225,7 @@ export function useUsers() {
     page,
     setPage,
     fetchUsers,
+    fetchCategories,
 
     // Create states & actions
     createOpen: modalState.createOpen,

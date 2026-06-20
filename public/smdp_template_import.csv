@@ -1,0 +1,4 @@
+nama,nip,email,gender,tanggal_lahir,status_kepegawaian,jenis_kepegawaian,kelompok_profesi,jabatan,peran
+"Budi Santoso","199203152018041001","budi.s@smdp.local","L","1992-03-15","ASN","PNS","Medis","Dokter Umum","EMPLOYEE"
+"Siti Aminah","199508212020082002","siti.a@smdp.local","P","1995-08-21","ASN","PPPK","Keperawatan","Perawat Ahli Pertama","EMPLOYEE"
+"Andi Wijaya","199001012015011003","andi.w@smdp.local","L","1990-01-01","Non ASN","BLUD Tetap","Administrasi","Pranata Komputer","STAFF"

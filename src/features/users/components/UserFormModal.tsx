@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User, UserFormData, EmploymentStatusOption } from "../types";
+import { User, UserFormData, EmploymentStatusOption, ProfessionGroupOption } from "../types";
 
 interface UserFormModalProps {
   open: boolean;
@@ -25,7 +26,8 @@ interface UserFormModalProps {
   isEdit: boolean;
   loading: boolean;
   onSubmit: (data: UserFormData) => void;
-  categories: EmploymentStatusOption[];
+  employmentStatuses: EmploymentStatusOption[];
+  professionGroups: ProfessionGroupOption[];
   initialData?: User | null;
 }
 
@@ -35,20 +37,39 @@ export function UserFormModal({
   isEdit,
   loading,
   onSubmit,
-  categories,
+  employmentStatuses,
+  professionGroups,
   initialData = null,
 }: UserFormModalProps) {
   // Local Form states initialized directly from initialData
-  const [name, setName] = useState(() => (isEdit && initialData ? initialData.name || "" : ""));
-  const [email, setEmail] = useState(() => (isEdit && initialData ? initialData.email || "" : ""));
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [employeeId, setEmployeeId] = useState(() => (isEdit && initialData ? initialData.employeeId || "" : ""));
-  const [gender, setGender] = useState(() => (isEdit && initialData ? initialData.gender || "L" : "L"));
-  const [birthDate, setBirthDate] = useState(() => (isEdit && initialData && initialData.birthDate ? initialData.birthDate.split("T")[0] : ""));
-  const [roles, setRoles] = useState<string[]>(() => (isEdit && initialData ? initialData.roles || [] : ["EMPLOYEE"]));
-  const [employmentStatusId, setEmploymentStatusId] = useState(() => (isEdit && initialData ? initialData.employmentStatusId || "" : ""));
-  const [employeeGroupId, setEmployeeGroupId] = useState(() => (isEdit && initialData ? initialData.employeeGroupId || "" : ""));
-  const [employeePositionId, setEmployeePositionId] = useState(() => (isEdit && initialData ? initialData.employeePositionId || "" : ""));
+  const [employeeId, setEmployeeId] = useState("");
+  const [gender, setGender] = useState("L");
+  const [birthDate, setBirthDate] = useState("");
+  const [roles, setRoles] = useState<string[]>(["EMPLOYEE"]);
+  const [employmentStatusId, setEmploymentStatusId] = useState("");
+  const [employeeGroupId, setEmployeeGroupId] = useState("");
+  const [professionGroupId, setProfessionGroupId] = useState("");
+  const [employeePositionId, setEmployeePositionId] = useState("");
+
+  // Sync inputs on open or initialData change
+  useEffect(() => {
+    if (open) {
+      setName(isEdit && initialData ? initialData.name || "" : "");
+      setEmail(isEdit && initialData ? initialData.email || "" : "");
+      setPassword("");
+      setEmployeeId(isEdit && initialData ? initialData.employeeId || "" : "");
+      setGender(isEdit && initialData ? initialData.gender || "L" : "L");
+      setBirthDate(isEdit && initialData && initialData.birthDate ? initialData.birthDate.split("T")[0] : "");
+      setRoles(isEdit && initialData ? initialData.roles || [] : ["EMPLOYEE"]);
+      setEmploymentStatusId(isEdit && initialData ? initialData.employmentStatusId || "" : "");
+      setEmployeeGroupId(isEdit && initialData ? initialData.employeeGroupId || "" : "");
+      setProfessionGroupId(isEdit && initialData ? initialData.professionGroupId || "" : "");
+      setEmployeePositionId(isEdit && initialData ? initialData.employeePositionId || "" : "");
+    }
+  }, [open, isEdit, initialData]);
 
   const handleRoleCheckboxChange = (role: string) => {
     if (roles.includes(role)) {
@@ -70,6 +91,7 @@ export function UserFormModal({
       roles,
       employmentStatusId: employmentStatusId || null,
       employeeGroupId: employeeGroupId || null,
+      professionGroupId: professionGroupId || null,
       employeePositionId: employeePositionId || null,
     };
     if (!isEdit) {
@@ -142,7 +164,7 @@ export function UserFormModal({
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Min 6 Karakter"
-                      className="pl-9"
+                      className="pl-9 w-full"
                       required
                     />
                   </div>
@@ -154,7 +176,7 @@ export function UserFormModal({
                   Jenis Kelamin
                 </Label>
                 <Select value={gender} onValueChange={(val) => setGender(val || "L")}>
-                  <SelectTrigger id="formGender">
+                  <SelectTrigger id="formGender" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -173,6 +195,7 @@ export function UserFormModal({
                   type="date"
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
+                  className="w-full"
                 />
               </div>
 
@@ -186,14 +209,15 @@ export function UserFormModal({
                   onValueChange={(val) => {
                     setEmploymentStatusId(val || "");
                     setEmployeeGroupId("");
-                    setEmployeePositionId("");
                   }}
                 >
-                  <SelectTrigger id="formStatus" className="text-xs">
-                    <SelectValue placeholder="Pilih Status" />
+                  <SelectTrigger id="formStatus" className="w-full text-xs">
+                    <SelectValue placeholder="Pilih Status">
+                      {employmentStatuses.find((c) => c.id === employmentStatusId)?.name}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((c) => (
+                    {employmentStatuses.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}
                       </SelectItem>
@@ -202,31 +226,35 @@ export function UserFormModal({
                 </Select>
               </div>
 
-              {/* Kelompok Pegawai */}
+              {/* Jenis Kepegawaian */}
               <div className="space-y-1.5">
                 <Label htmlFor="formGroup" className="text-xs font-bold text-muted-foreground">
-                  Kelompok Pegawai
+                  Jenis Kepegawaian
                 </Label>
                 <Select
                   value={employeeGroupId}
                   onValueChange={(val) => {
                     setEmployeeGroupId(val || "");
-                    setEmployeePositionId("");
                   }}
                   disabled={!employmentStatusId}
                 >
-                  <SelectTrigger id="formGroup" className="text-xs">
+                  <SelectTrigger id="formGroup" className="w-full text-xs">
                     <SelectValue
                       placeholder={
                         employmentStatusId
-                          ? "Pilih Kelompok"
-                          : "Pilih Status Kepegawaian dahulu"
+                          ? "Pilih Jenis"
+                          : "Pilih Status dahulu"
                       }
-                    />
+                    >
+                      {
+                        (employmentStatuses.find((c) => c.id === employmentStatusId)?.groups || [])
+                          .find((g) => g.id === employeeGroupId)?.name
+                      }
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {(
-                      categories.find((c) => c.id === employmentStatusId)?.groups || []
+                      employmentStatuses.find((c) => c.id === employmentStatusId)?.groups || []
                     ).map((g) => (
                       <SelectItem key={g.id} value={g.id}>
                         {g.name}
@@ -236,36 +264,68 @@ export function UserFormModal({
                 </Select>
               </div>
 
-              {/* Profesi / Jabatan */}
-              {employmentStatusId &&
-              employeeGroupId &&
-              (categories.find((c) => c.id === employmentStatusId)?.groups || []).find(
-                (g) => g.id === employeeGroupId
-              )?.positions.length ? (
-                <div className="space-y-1.5 md:col-span-2">
-                  <Label htmlFor="formPosition" className="text-xs font-bold text-muted-foreground">
-                    Profesi / Jabatan
-                  </Label>
-                  <Select
-                    value={employeePositionId}
-                    onValueChange={(val) => setEmployeePositionId(val || "")}
-                  >
-                    <SelectTrigger id="formPosition" className="text-xs">
-                      <SelectValue placeholder="Pilih Profesi / Jabatan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(
-                        (categories.find((c) => c.id === employmentStatusId)?.groups || [])
-                          .find((g) => g.id === employeeGroupId)?.positions || []
-                      ).map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ) : null}
+              {/* Kelompok Profesi */}
+              <div className="space-y-1.5">
+                <Label htmlFor="formProfession" className="text-xs font-bold text-muted-foreground">
+                  Kelompok Profesi
+                </Label>
+                <Select
+                  value={professionGroupId}
+                  onValueChange={(val) => {
+                    setProfessionGroupId(val || "");
+                    setEmployeePositionId("");
+                  }}
+                >
+                  <SelectTrigger id="formProfession" className="w-full text-xs">
+                    <SelectValue placeholder="Pilih Kelompok Profesi">
+                      {professionGroups.find((pg) => pg.id === professionGroupId)?.name}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {professionGroups.map((pg) => (
+                      <SelectItem key={pg.id} value={pg.id}>
+                        {pg.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Jabatan */}
+              <div className="space-y-1.5">
+                <Label htmlFor="formPosition" className="text-xs font-bold text-muted-foreground">
+                  Jabatan
+                </Label>
+                <Select
+                  value={employeePositionId}
+                  onValueChange={(val) => setEmployeePositionId(val || "")}
+                  disabled={!professionGroupId}
+                >
+                  <SelectTrigger id="formPosition" className="w-full text-xs">
+                    <SelectValue
+                      placeholder={
+                        professionGroupId
+                          ? "Pilih Jabatan"
+                          : "Pilih Kelompok dahulu"
+                      }
+                    >
+                      {
+                        (professionGroups.find((pg) => pg.id === professionGroupId)?.positions || [])
+                          .find((pos) => pos.id === employeePositionId)?.name
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(
+                      professionGroups.find((pg) => pg.id === professionGroupId)?.positions || []
+                    ).map((pos) => (
+                      <SelectItem key={pos.id} value={pos.id}>
+                        {pos.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Roles Selector */}

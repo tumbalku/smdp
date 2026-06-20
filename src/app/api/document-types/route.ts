@@ -14,15 +14,15 @@ export async function GET() {
     if (session?.user?.role === "EMPLOYEE") {
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
-        include: { employeePosition: true },
+        include: { professionGroup: true },
       });
-      const userPosName = user?.employeePosition?.name || null;
+      const userProfName = user?.professionGroup?.name || null;
 
       const filtered = documentTypes.filter((type) => {
         if (!type.targetPositions) return true;
-        if (!userPosName) return false;
+        if (!userProfName) return false;
         const allowed = type.targetPositions.split(",").map((p) => p.trim());
-        return allowed.includes(userPosName);
+        return allowed.includes(userProfName);
       });
 
       return NextResponse.json({ data: filtered, error: null });
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, description, targetPositions, isMandatory, requiresExpiryDate, maxSize, allowedFormats } = parsed.data;
+    const { name, description, targetPositions, isMandatory, requiresExpiryDate, maxSize, allowedFormats, icon } = parsed.data;
 
     const newType = await prisma.documentType.create({
       data: {
@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
         requiresExpiryDate: !!requiresExpiryDate,
         maxSize: Number(maxSize) || 5,
         allowedFormats: allowedFormats || "PDF, JPG, PNG",
+        icon: icon || "FileText",
       },
     });
 
@@ -119,6 +120,7 @@ export async function PUT(req: NextRequest) {
           requiresExpiryDate: !!item.requiresExpiryDate,
           maxSize: Number(item.maxSize) || 5,
           allowedFormats: item.allowedFormats || "PDF, JPG, PNG",
+          icon: item.icon || "FileText",
         },
       });
     });

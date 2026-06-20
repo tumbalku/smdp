@@ -1,18 +1,23 @@
-export interface EmployeePositionOption {
-  id: string;
-  name: string;
-}
-
 export interface EmployeeGroupOption {
   id: string;
   name: string;
-  positions: EmployeePositionOption[];
 }
 
 export interface EmploymentStatusOption {
   id: string;
   name: string;
   groups: EmployeeGroupOption[];
+}
+
+export interface EmployeePositionOption {
+  id: string;
+  name: string;
+}
+
+export interface ProfessionGroupOption {
+  id: string;
+  name: string;
+  positions: EmployeePositionOption[];
 }
 
 export interface User {
@@ -31,9 +36,11 @@ export interface User {
   birthDate: string | null;
   employmentStatusId: string | null;
   employeeGroupId: string | null;
+  professionGroupId: string | null;
   employeePositionId: string | null;
   employmentStatus: { name: string } | null;
   employeeGroup: { name: string } | null;
+  professionGroup: { name: string } | null;
   employeePosition: { name: string } | null;
 }
 
@@ -47,5 +54,6 @@ export interface UserFormData {
   roles: string[];
   employmentStatusId: string | null;
   employeeGroupId: string | null;
+  professionGroupId: string | null;
   employeePositionId: string | null;
 }

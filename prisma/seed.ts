@@ -15,24 +15,25 @@ async function main() {
   await prisma.userRole.deleteMany({});
   await prisma.user.deleteMany({});
   await prisma.employeePosition.deleteMany({});
+  await prisma.professionGroup.deleteMany({});
   await prisma.employeeGroup.deleteMany({});
   await prisma.employmentStatus.deleteMany({});
   console.log("🗑️ Existing data cleared.");
 
   // 1. Seed Document Types
   const documentTypes = [
-    { name: "CV", isMandatory: false, requiresExpiryDate: false, description: "Curriculum Vitae", targetPositions: null, maxSize: 5, allowedFormats: "PDF, DOCX" },
-    { name: "KTP", isMandatory: true, requiresExpiryDate: false, description: "National ID", targetPositions: null, maxSize: 2, allowedFormats: "JPG, PNG" },
-    { name: "Ijazah", isMandatory: true, requiresExpiryDate: false, description: "Educational Certificate", targetPositions: null, maxSize: 5, allowedFormats: "PDF" },
-    { name: "STR Medis", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Medis", targetPositions: "Medis", maxSize: 5, allowedFormats: "PDF, JPG, PNG" },
-    { name: "SIP Medis", isMandatory: true, requiresExpiryDate: true, description: "Surat Izin Praktik Medis", targetPositions: "Medis", maxSize: 5, allowedFormats: "PDF, JPG, PNG" },
-    { name: "STR Keperawatan", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Keperawatan", targetPositions: "Keperawatan", maxSize: 5, allowedFormats: "PDF, JPG, PNG" },
-    { name: "SIP Keperawatan", isMandatory: true, requiresExpiryDate: true, description: "Surat Izin Praktik Keperawatan", targetPositions: "Keperawatan", maxSize: 5, allowedFormats: "PDF, JPG, PNG" },
-    { name: "STR Kebidanan", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Kebidanan", targetPositions: "Kebidanan", maxSize: 5, allowedFormats: "PDF, JPG, PNG" },
-    { name: "SIP Kebidanan", isMandatory: true, requiresExpiryDate: true, description: "Surat Izin Praktik Kebidanan", targetPositions: "Kebidanan", maxSize: 5, allowedFormats: "PDF, JPG, PNG" },
-    { name: "STR Kefarmasian", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Kefarmasian", targetPositions: "Kefarmasian", maxSize: 5, allowedFormats: "PDF, JPG, PNG" },
-    { name: "STR Penunjang Medis", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Penunjang Medis", targetPositions: "Penunjang Medis", maxSize: 5, allowedFormats: "PDF, JPG, PNG" },
-    { name: "Sertifikat", isMandatory: false, requiresExpiryDate: false, description: "Training Certificate", targetPositions: null, maxSize: 10, allowedFormats: "PDF, JPG, PNG" },
+    { name: "CV", isMandatory: false, requiresExpiryDate: false, description: "Curriculum Vitae", targetPositions: null, maxSize: 5, allowedFormats: "PDF, DOCX", icon: "FileText" },
+    { name: "KTP", isMandatory: true, requiresExpiryDate: false, description: "National ID", targetPositions: null, maxSize: 2, allowedFormats: "JPG, PNG", icon: "CreditCard" },
+    { name: "Ijazah", isMandatory: true, requiresExpiryDate: false, description: "Educational Certificate", targetPositions: null, maxSize: 5, allowedFormats: "PDF", icon: "GraduationCap" },
+    { name: "STR Medis", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Medis", targetPositions: "Medis", maxSize: 5, allowedFormats: "PDF, JPG, PNG", icon: "HeartPulse" },
+    { name: "SIP Medis", isMandatory: true, requiresExpiryDate: true, description: "Surat Izin Praktik Medis", targetPositions: "Medis", maxSize: 5, allowedFormats: "PDF, JPG, PNG", icon: "Award" },
+    { name: "STR Keperawatan", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Keperawatan", targetPositions: "Keperawatan", maxSize: 5, allowedFormats: "PDF, JPG, PNG", icon: "HeartPulse" },
+    { name: "SIP Keperawatan", isMandatory: true, requiresExpiryDate: true, description: "Surat Izin Praktik Keperawatan", targetPositions: "Keperawatan", maxSize: 5, allowedFormats: "PDF, JPG, PNG", icon: "Award" },
+    { name: "STR Kebidanan", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Kebidanan", targetPositions: "Kebidanan", maxSize: 5, allowedFormats: "PDF, JPG, PNG", icon: "HeartPulse" },
+    { name: "SIP Kebidanan", isMandatory: true, requiresExpiryDate: true, description: "Surat Izin Praktik Kebidanan", targetPositions: "Kebidanan", maxSize: 5, allowedFormats: "PDF, JPG, PNG", icon: "Award" },
+    { name: "STR Kefarmasian", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Kefarmasian", targetPositions: "Kefarmasian", maxSize: 5, allowedFormats: "PDF, JPG, PNG", icon: "HeartPulse" },
+    { name: "STR Penunjang Medis", isMandatory: true, requiresExpiryDate: true, description: "Surat Tanda Registrasi Penunjang Medis", targetPositions: "Penunjang Medis", maxSize: 5, allowedFormats: "PDF, JPG, PNG", icon: "HeartPulse" },
+    { name: "Sertifikat", isMandatory: false, requiresExpiryDate: false, description: "Training Certificate", targetPositions: null, maxSize: 10, allowedFormats: "PDF, JPG, PNG", icon: "ShieldCheck" },
   ];
 
   for (const docType of documentTypes) {
@@ -55,7 +56,8 @@ async function main() {
   const groups = [
     { name: "PNS", status: "ASN" },
     { name: "PPPK", status: "ASN" },
-    { name: "BLUD", status: "Non ASN" },
+    { name: "BLUD Tetap", status: "Non ASN" },
+    { name: "BLUD Kontrak", status: "Non ASN" },
   ];
   const groupMap: { [key: string]: string } = {};
   for (const g of groups) {
@@ -69,28 +71,33 @@ async function main() {
     groupMap[`${g.status}_${g.name}`] = grp.id;
   }
 
+  const profs = ["Medis", "Keperawatan", "Kebidanan", "Kefarmasian", "Administrasi"];
+  const profMap: { [key: string]: string } = {};
+  for (const pName of profs) {
+    const p = await prisma.professionGroup.create({
+      data: { name: pName },
+    });
+    profMap[pName] = p.id;
+  }
+
   const positions = [
-    { name: "Medis", group: "PNS", status: "ASN" },
-    { name: "Keperawatan", group: "PNS", status: "ASN" },
-    { name: "Kebidanan", group: "PNS", status: "ASN" },
-    { name: "Kefarmasian", group: "PNS", status: "ASN" },
-    { name: "Penunjang Medis", group: "PNS", status: "ASN" },
-    { name: "Administrasi", group: "PNS", status: "ASN" },
-    { name: "Teknologi Informasi", group: "PNS", status: "ASN" },
-    { name: "Manajemen", group: "PNS", status: "ASN" },
-    { name: "Full Time", group: "PPPK", status: "ASN" },
-    { name: "Part Time", group: "PPPK", status: "ASN" },
+    { name: "Dokter Umum", group: "Medis" },
+    { name: "Dokter Spesialis", group: "Medis" },
+    { name: "Perawat Ahli Pertama", group: "Keperawatan" },
+    { name: "Bidan Ahli Muda", group: "Kebidanan" },
+    { name: "Apoteker", group: "Kefarmasian" },
+    { name: "Pranata Komputer", group: "Administrasi" },
   ];
   const positionMap: { [key: string]: string } = {};
   for (const pos of positions) {
-    const groupId = groupMap[`${pos.status}_${pos.group}`];
+    const profGroupId = profMap[pos.group];
     const p = await prisma.employeePosition.create({
       data: {
         name: pos.name,
-        employeeGroupId: groupId,
+        professionGroupId: profGroupId,
       },
     });
-    positionMap[`${pos.status}_${pos.group}_${pos.name}`] = p.id;
+    positionMap[`${pos.group}_${pos.name}`] = p.id;
   }
   console.log("✅ Master kepegawaian seeded successfully!");
 
@@ -110,7 +117,8 @@ async function main() {
       birthDate: new Date("1980-04-12"),
       employmentStatusName: "ASN",
       employeeGroupName: "PNS",
-      employeePositionName: "Administrasi",
+      professionGroupName: "Administrasi",
+      employeePositionName: "Pranata Komputer",
     },
     {
       email: "staff@smdp.local",
@@ -122,7 +130,8 @@ async function main() {
       birthDate: new Date("1985-09-20"),
       employmentStatusName: "ASN",
       employeeGroupName: "PNS",
-      employeePositionName: "Administrasi",
+      professionGroupName: "Administrasi",
+      employeePositionName: "Pranata Komputer",
     },
     {
       email: "pppk1@smdp.local",
@@ -134,7 +143,8 @@ async function main() {
       birthDate: new Date("1990-11-15"),
       employmentStatusName: "ASN",
       employeeGroupName: "PNS",
-      employeePositionName: "Keperawatan",
+      professionGroupName: "Keperawatan",
+      employeePositionName: "Perawat Ahli Pertama",
     },
     {
       email: "pppk2@smdp.local",
@@ -146,7 +156,8 @@ async function main() {
       birthDate: new Date("1995-03-25"),
       employmentStatusName: "ASN",
       employeeGroupName: "PPPK",
-      employeePositionName: "Part Time",
+      professionGroupName: "Administrasi",
+      employeePositionName: "Pranata Komputer",
     },
     {
       email: "blud1@smdp.local",
@@ -157,8 +168,9 @@ async function main() {
       gender: "L",
       birthDate: new Date("1992-07-05"),
       employmentStatusName: "Non ASN",
-      employeeGroupName: "BLUD",
-      employeePositionName: undefined,
+      employeeGroupName: "BLUD Tetap",
+      professionGroupName: "Medis",
+      employeePositionName: "Dokter Umum",
     },
     {
       email: "blud2@smdp.local",
@@ -169,23 +181,28 @@ async function main() {
       gender: "P",
       birthDate: new Date("1997-12-01"),
       employmentStatusName: "Non ASN",
-      employeeGroupName: "BLUD",
-      employeePositionName: undefined,
+      employeeGroupName: "BLUD Kontrak",
+      professionGroupName: "Kebidanan",
+      employeePositionName: "Bidan Ahli Muda",
     },
   ];
 
   for (const user of users) {
     let employmentStatusId: string | null = null;
     let employeeGroupId: string | null = null;
+    let professionGroupId: string | null = null;
     let employeePositionId: string | null = null;
 
     if (user.employmentStatusName) {
       employmentStatusId = statusMap[user.employmentStatusName] || null;
       if (user.employeeGroupName) {
         employeeGroupId = groupMap[`${user.employmentStatusName}_${user.employeeGroupName}`] || null;
-        if (user.employeePositionName) {
-          employeePositionId = positionMap[`${user.employmentStatusName}_${user.employeeGroupName}_${user.employeePositionName}`] || null;
-        }
+      }
+    }
+    if (user.professionGroupName) {
+      professionGroupId = profMap[user.professionGroupName] || null;
+      if (user.employeePositionName) {
+        employeePositionId = positionMap[`${user.professionGroupName}_${user.employeePositionName}`] || null;
       }
     }
 
@@ -200,6 +217,7 @@ async function main() {
         birthDate: user.birthDate,
         employmentStatusId,
         employeeGroupId,
+        professionGroupId,
         employeePositionId,
       },
     });

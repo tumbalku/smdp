@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { DOCUMENT_ICONS } from "../utils/icons";
 
 interface DocTypeFormModalProps {
   open: boolean;
@@ -24,6 +26,7 @@ interface DocTypeFormModalProps {
     targetPositions: string[];
     isMandatory: boolean;
     requiresExpiry: boolean;
+    icon: string;
   }) => void;
   positions: string[];
 }
@@ -44,8 +47,9 @@ export function DocTypeFormModal({
   const [targetPositions, setTargetPositions] = useState<string[]>([]);
   const [isMandatory, setIsMandatory] = useState(false);
   const [requiresExpiry, setRequiresExpiry] = useState(false);
+  const [icon, setIcon] = useState("FileText");
 
-  // ponytail: reset form inputs when dialog opens
+  // reset form inputs when dialog opens
   useEffect(() => {
     if (open) {
       setName("");
@@ -55,6 +59,7 @@ export function DocTypeFormModal({
       setTargetPositions([]);
       setIsMandatory(false);
       setRequiresExpiry(false);
+      setIcon("FileText");
     }
   }, [open]);
 
@@ -68,6 +73,7 @@ export function DocTypeFormModal({
       targetPositions,
       isMandatory,
       requiresExpiry,
+      icon,
     });
   };
 
@@ -106,6 +112,35 @@ export function DocTypeFormModal({
                 placeholder="Penjelasan singkat mengenai berkas ini..."
                 className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-muted-foreground">
+                Pilih Ikon Dokumen
+              </Label>
+              <div className="grid grid-cols-4 gap-2 bg-muted p-3 md:p-3.5 rounded-xl border border-border max-h-[160px] overflow-y-auto">
+                {DOCUMENT_ICONS.map((item) => {
+                  const IconComponent = item.icon;
+                  const isActive = icon === item.value;
+                  return (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setIcon(item.value)}
+                      className={`flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all duration-150 gap-1 cursor-pointer ${
+                        isActive
+                          ? "bg-[#6c63ff] border-[#6c63ff] text-white shadow-xs"
+                          : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <IconComponent className="w-5 h-5" />
+                      <span className="text-[9px] font-bold tracking-tight line-clamp-1">
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="space-y-1.5">

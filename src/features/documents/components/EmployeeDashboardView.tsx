@@ -20,6 +20,7 @@ import dynamic from "next/dynamic";
 import { useDocuments } from "../hooks/useDocuments";
 import { DocumentTable } from "./DocumentTable";
 import { UploadModal } from "./UploadModal";
+import { getDocumentIcon } from "../../document-types/utils/icons";
 
 const CalendarSection = dynamic(
   () => import("@/components/CalendarSection").then((mod) => mod.CalendarSection),
@@ -196,21 +197,26 @@ export function EmployeeDashboardView() {
               );
             }
 
+            const IconComp = getDocumentIcon(type.icon);
+
             return (
               <Card key={type.id} className={`border ${statusColor} shadow-xs hover:shadow-md transition-shadow`}>
-                <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between space-y-0">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-extrabold text-sm text-foreground">{type.name}</span>
+                <CardHeader className="p-4 pb-2 flex flex-row items-start gap-3 space-y-0">
+                  <div className="p-2.5 bg-[#6c63ff]/10 text-[#6c63ff] rounded-xl flex-shrink-0 flex items-center justify-center">
+                    <IconComp className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-extrabold text-sm text-foreground truncate">{type.name}</span>
                       {isMandatory && (
                         <Badge className="bg-rose-500/10 hover:bg-rose-500/10 text-rose-500 text-[10px] font-bold px-1.5 py-0 border-0">
                           Wajib
                         </Badge>
                       )}
                     </div>
-                    <p className="text-[10px] text-muted-foreground">{type.description || `Dokumen identifikasi/kualifikasi ${type.name}`}</p>
+                    <p className="text-[10px] text-muted-foreground line-clamp-2">{type.description || `Dokumen identifikasi/kualifikasi ${type.name}`}</p>
                   </div>
-                  <div className="p-1">{statusIcon}</div>
+                  <div className="p-1 flex-shrink-0">{statusIcon}</div>
                 </CardHeader>
                 <CardContent className="p-4 pt-2 space-y-3">
                   <div className="flex justify-between items-center text-[10px]">

@@ -6,6 +6,7 @@ export interface DocumentType {
   maxSize: number;
   allowedFormats: string;
   description: string | null;
+  icon: string;
 }
 
 export interface DocumentRecord {

@@ -26,6 +26,8 @@ export async function GET() {
         gender: true,
         birthDate: true,
         role: true,
+        employmentStatus: { select: { name: true } },
+        employeePosition: { select: { name: true } },
       },
     });
 
@@ -95,6 +97,36 @@ export async function GET() {
       }
     });
 
+    // 3. Status Kepegawaian + Gender and Position aggregates
+    const statusGenderCounts = new Map<string, number>();
+    const positionCounts = new Map<string, number>();
+
+    users.forEach((u) => {
+      // Status + Gender combination
+      const statusName = u.employmentStatus?.name || "Belum Ditentukan";
+      const genderLabel = u.gender === "L" ? "Laki-laki" : u.gender === "P" ? "Perempuan" : "Tidak Diketahui";
+      const statusGenderKey = `${statusName} - ${genderLabel}`;
+      statusGenderCounts.set(statusGenderKey, (statusGenderCounts.get(statusGenderKey) || 0) + 1);
+
+      // Position (Jabatan)
+      const positionName = u.employeePosition?.name || "Belum Ditentukan";
+      positionCounts.set(positionName, (positionCounts.get(positionName) || 0) + 1);
+    });
+
+    const statusGenderStats = Array.from(statusGenderCounts.entries()).map(([name, value]) => ({
+      name,
+      value,
+    }));
+
+    const positionStats = Array.from(positionCounts.entries()).map(([name, count]) => ({
+      name,
+      count,
+    }));
+
+    // Sort alphabetically for display consistency
+    statusGenderStats.sort((a, b) => a.name.localeCompare(b.name));
+    positionStats.sort((a, b) => a.name.localeCompare(b.name));
+
     // Sort retirement details: retired first, then older ages desc
     retirementDetails.sort((a, b) => b.age - a.age);
 
@@ -114,6 +146,8 @@ export async function GET() {
           retirementAgeLimit: 58,
         },
         retirementList: retirementDetails,
+        statusGenderStats,
+        positionStats,
       },
     });
   } catch (err) {

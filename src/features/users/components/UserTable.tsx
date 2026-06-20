@@ -97,10 +97,11 @@ export function UserTable({ users, onEdit, onChangePassword }: UserTableProps) {
                 <div className="space-y-0.5">
                   <span className="font-bold text-foreground">
                     {user.employmentStatus.name}
+                    {user.employeeGroup && ` - ${user.employeeGroup.name}`}
                   </span>
-                  {user.employeeGroup && (
+                  {(user.professionGroup || user.employeePosition) && (
                     <span className="text-[10px] text-muted-foreground block font-medium">
-                      {user.employeeGroup.name}
+                      {user.professionGroup?.name || "-"}
                       {user.employeePosition && ` - ${user.employeePosition.name}`}
                     </span>
                   )}

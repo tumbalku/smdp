@@ -26,9 +26,11 @@ export async function getUserById(id: string) {
       birthDate: true,
       employmentStatusId: true,
       employeeGroupId: true,
+      professionGroupId: true,
       employeePositionId: true,
       employmentStatus: { select: { id: true, name: true } },
       employeeGroup: { select: { id: true, name: true } },
+      professionGroup: { select: { id: true, name: true } },
       employeePosition: { select: { id: true, name: true } },
       roles: {
         select: {
@@ -140,6 +142,7 @@ export async function createUser(data: {
   birthDate?: Date | null;
   employmentStatusId?: string | null;
   employeeGroupId?: string | null;
+  professionGroupId?: string | null;
   employeePositionId?: string | null;
 }) {
   const passwordHash = await bcrypt.hash(data.passwordPlain, 10);
@@ -158,6 +161,7 @@ export async function createUser(data: {
         birthDate: data.birthDate || null,
         employmentStatusId: data.employmentStatusId || null,
         employeeGroupId: data.employeeGroupId || null,
+        professionGroupId: data.professionGroupId || null,
         employeePositionId: data.employeePositionId || null,
       },
     });
@@ -181,6 +185,7 @@ export async function createUser(data: {
       birthDate: user.birthDate,
       employmentStatusId: user.employmentStatusId,
       employeeGroupId: user.employeeGroupId,
+      professionGroupId: user.professionGroupId,
       employeePositionId: user.employeePositionId,
     };
   });
@@ -197,6 +202,7 @@ export async function updateUser(
     roles?: Role[];
     employmentStatusId?: string | null;
     employeeGroupId?: string | null;
+    professionGroupId?: string | null;
     employeePositionId?: string | null;
   }
 ) {
@@ -216,6 +222,7 @@ export async function updateUser(
         role: primaryRole,
         employmentStatusId: data.employmentStatusId,
         employeeGroupId: data.employeeGroupId,
+        professionGroupId: data.professionGroupId,
         employeePositionId: data.employeePositionId,
       },
       select: {
@@ -233,9 +240,11 @@ export async function updateUser(
         birthDate: true,
         employmentStatusId: true,
         employeeGroupId: true,
+        professionGroupId: true,
         employeePositionId: true,
         employmentStatus: { select: { id: true, name: true } },
         employeeGroup: { select: { id: true, name: true } },
+        professionGroup: { select: { id: true, name: true } },
         employeePosition: { select: { id: true, name: true } },
       },
     });
@@ -319,9 +328,11 @@ export async function getPaginatedUsers(params: {
         birthDate: true,
         employmentStatusId: true,
         employeeGroupId: true,
+        professionGroupId: true,
         employeePositionId: true,
         employmentStatus: { select: { id: true, name: true } },
         employeeGroup: { select: { id: true, name: true } },
+        professionGroup: { select: { id: true, name: true } },
         employeePosition: { select: { id: true, name: true } },
         roles: {
           select: {
