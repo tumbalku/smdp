@@ -14,6 +14,7 @@ import {
   X,
   FileCheck,
   Calendar,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,6 +46,11 @@ export function Sidebar({ onClose }: SidebarProps) {
           href: "/admin/document-types",
           label: "Konfigurasi Dokumen",
           icon: Settings,
+        },
+        {
+          href: "/admin/categories",
+          label: "Kelola Kategori",
+          icon: Layers,
         },
         {
           href: "/admin/security-logs",

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from "react";
-import { User, EmploymentStatusOption, ProfessionGroupOption, UserFormData } from "../types";
+import { User, EmploymentStatusOption, ProfessionGroupOption, EmployeeRankOption, WorkplaceOption, UserFormData } from "../types";
 
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -19,6 +19,8 @@ export function useUsers() {
   // Master Kepegawaian states
   const [employmentStatuses, setEmploymentStatuses] = useState<EmploymentStatusOption[]>([]);
   const [professionGroups, setProfessionGroups] = useState<ProfessionGroupOption[]>([]);
+  const [employeeRanks, setEmployeeRanks] = useState<EmployeeRankOption[]>([]);
+  const [workplaces, setWorkplaces] = useState<WorkplaceOption[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   // Filter & Search states
@@ -47,6 +49,8 @@ export function useUsers() {
       if (res.ok && resData.success && resData.data) {
         setEmploymentStatuses(resData.data.employmentStatuses || []);
         setProfessionGroups(resData.data.professionGroups || []);
+        setEmployeeRanks(resData.data.employeeRanks || []);
+        setWorkplaces(resData.data.workplaces || []);
       }
     } catch (err) {
       console.error("Gagal memuat kategori kepegawaian:", err);
@@ -217,6 +221,8 @@ export function useUsers() {
     statsLoading,
     employmentStatuses,
     professionGroups,
+    employeeRanks,
+    workplaces,
     categoriesLoading,
     search,
     setSearch,

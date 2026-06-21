@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
         employeeGroup: { select: { name: true } },
         professionGroup: { select: { name: true } },
         employeePosition: { select: { name: true } },
+        employeeRank: { select: { name: true } },
         roles: { select: { role: true } },
       },
       orderBy: { name: "asc" },
@@ -49,6 +50,7 @@ export async function GET(req: NextRequest) {
       "jenis_kepegawaian",
       "kelompok_profesi",
       "jabatan",
+      "pangkat",
       "peran"
     ];
 
@@ -82,6 +84,7 @@ export async function GET(req: NextRequest) {
         escapeCSV(u.employeeGroup?.name),
         escapeCSV(u.professionGroup?.name),
         escapeCSV(u.employeePosition?.name),
+        escapeCSV(u.employeeRank?.name),
         escapeCSV(rolesStr),
       ];
 

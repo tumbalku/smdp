@@ -14,6 +14,9 @@ interface ProfileFormProps {
     gelarAkademik: string;
     gender: string;
     birthDate: string;
+    agama: string;
+    pendidikanTerakhir: string;
+    statusPernikahan: string;
   };
   setFormValues: React.Dispatch<React.SetStateAction<{
     namaLahir: string;
@@ -22,13 +25,16 @@ interface ProfileFormProps {
     gelarAkademik: string;
     gender: string;
     birthDate: string;
+    agama: string;
+    pendidikanTerakhir: string;
+    statusPernikahan: string;
   }>>;
   onSubmit: (e: React.FormEvent) => void;
   saving: boolean;
 }
 
 export function ProfileForm({ formValues, setFormValues, onSubmit, saving }: ProfileFormProps) {
-  const { namaLahir, alamatLengkap, nomorTelepon, gelarAkademik, gender, birthDate } = formValues;
+  const { namaLahir, alamatLengkap, nomorTelepon, gelarAkademik, gender, birthDate, agama, pendidikanTerakhir, statusPernikahan } = formValues;
 
   // ponytail: unified input state update helper
   const handleChange = (field: keyof typeof formValues, value: string) => {
@@ -85,6 +91,60 @@ export function ProfileForm({ formValues, setFormValues, onSubmit, saving }: Pro
                 value={birthDate}
                 onChange={(e) => handleChange("birthDate", e.target.value)}
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="agama" className="text-xs font-bold text-muted-foreground">Agama</Label>
+              <Select value={agama} onValueChange={(val) => handleChange("agama", val || "")}>
+                <SelectTrigger id="agama" className="w-full">
+                  <SelectValue placeholder="Pilih Agama" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Islam">Islam</SelectItem>
+                  <SelectItem value="Kristen Protestan">Kristen Protestan</SelectItem>
+                  <SelectItem value="Kristen Katolik">Kristen Katolik</SelectItem>
+                  <SelectItem value="Hindu">Hindu</SelectItem>
+                  <SelectItem value="Buddha">Buddha</SelectItem>
+                  <SelectItem value="Khonghucu">Khonghucu</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="pendidikanTerakhir" className="text-xs font-bold text-muted-foreground">Pendidikan Terakhir</Label>
+              <Select value={pendidikanTerakhir} onValueChange={(val) => handleChange("pendidikanTerakhir", val || "")}>
+                <SelectTrigger id="pendidikanTerakhir" className="w-full">
+                  <SelectValue placeholder="Pilih Pendidikan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SD">SD</SelectItem>
+                  <SelectItem value="SMP">SMP</SelectItem>
+                  <SelectItem value="SMA / SMK">SMA / SMK</SelectItem>
+                  <SelectItem value="D1">D1</SelectItem>
+                  <SelectItem value="D2">D2</SelectItem>
+                  <SelectItem value="D3">D3</SelectItem>
+                  <SelectItem value="D4 / S1">D4 / S1</SelectItem>
+                  <SelectItem value="S2">S2</SelectItem>
+                  <SelectItem value="S3">S3</SelectItem>
+                  <SelectItem value="Sp-1">Sp-1</SelectItem>
+                  <SelectItem value="Sp-2">Sp-2</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="statusPernikahan" className="text-xs font-bold text-muted-foreground">Status Pernikahan</Label>
+              <Select value={statusPernikahan} onValueChange={(val) => handleChange("statusPernikahan", val || "")}>
+                <SelectTrigger id="statusPernikahan" className="w-full">
+                  <SelectValue placeholder="Pilih Status Pernikahan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Belum Kawin">Belum Kawin</SelectItem>
+                  <SelectItem value="Kawin">Kawin</SelectItem>
+                  <SelectItem value="Cerai Hidup">Cerai Hidup</SelectItem>
+                  <SelectItem value="Cerai Mati">Cerai Mati</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5 md:col-span-2">

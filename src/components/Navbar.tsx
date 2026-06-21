@@ -21,6 +21,7 @@ const pageTitles: Record<string, string> = {
   "/admin/document-types": "Konfigurasi Dokumen",
   "/admin/security-logs": "Audit Log Keamanan",
   "/admin/users": "Manajemen Pegawai",
+  "/admin/categories": "Kelola Kategori Kepegawaian",
   "/employee/dashboard": "Portal Dokumen Pegawai",
   "/profile": "Profil Saya",
 };

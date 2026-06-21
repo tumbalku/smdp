@@ -72,15 +72,27 @@ export function UserTable({ users, onEdit, onChangePassword }: UserTableProps) {
               {user.employeeId || "-"}
             </TableCell>
             <TableCell className="align-middle">
-              <div>
+              <div className="space-y-1">
                 <p className="font-extrabold text-xs text-foreground">
                   {user.name} {user.gelarAkademik ? `, ${user.gelarAkademik}` : ""}
                 </p>
-                {user.namaLahir && (
-                  <p className="text-[9px] text-muted-foreground italic">
-                    Lahir: {user.namaLahir}
-                  </p>
-                )}
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  {user.namaLahir && (
+                    <span className="text-[9px] text-muted-foreground font-medium italic">
+                      Lahir: {user.namaLahir}
+                    </span>
+                  )}
+                  {user.agama && (
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-amber-500/5 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 border-amber-500/20 font-mono font-normal">
+                      Agama: {user.agama}
+                    </Badge>
+                  )}
+                  {user.pendidikanTerakhir && (
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-blue-500/5 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400 border-blue-500/20 font-mono font-normal">
+                      Pendidikan: {user.pendidikanTerakhir}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </TableCell>
             <TableCell className="text-xs text-muted-foreground font-medium">
@@ -103,6 +115,16 @@ export function UserTable({ users, onEdit, onChangePassword }: UserTableProps) {
                     <span className="text-[10px] text-muted-foreground block font-medium">
                       {user.professionGroup?.name || "-"}
                       {user.employeePosition && ` - ${user.employeePosition.name}`}
+                    </span>
+                  )}
+                  {user.employeeRank && (
+                    <span className="text-[10px] text-primary block font-bold leading-normal">
+                      Pangkat: {user.employeeRank.name}
+                    </span>
+                  )}
+                  {user.workplace && (
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block font-bold leading-normal">
+                      Tempat Tugas: {user.workplace.name}
                     </span>
                   )}
                 </div>

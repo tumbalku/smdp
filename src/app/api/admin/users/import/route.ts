@@ -111,6 +111,7 @@ export async function POST(req: NextRequest) {
     const groupIdx = headers.indexOf("jenis_kepegawaian");
     const professionIdx = headers.indexOf("kelompok_profesi");
     const positionIdx = headers.indexOf("jabatan");
+    const rankIdx = headers.indexOf("pangkat");
     const rolesIdx = headers.indexOf("peran");
 
     if (nameIdx === -1 || nipIdx === -1 || emailIdx === -1) {
@@ -128,6 +129,7 @@ export async function POST(req: NextRequest) {
     const professions = await prisma.professionGroup.findMany({
       include: { positions: true },
     });
+    const ranks = await prisma.employeeRank.findMany();
 
     const statusMap = new Map<string, { id: string; groups: Map<string, string> }>();
     for (const s of statuses) {
@@ -145,6 +147,11 @@ export async function POST(req: NextRequest) {
         positionMap.set(pos.name.toLowerCase().trim(), pos.id);
       }
       professionMap.set(p.name.toLowerCase().trim(), { id: p.id, positions: positionMap });
+    }
+
+    const rankMap = new Map<string, string>();
+    for (const r of ranks) {
+      rankMap.set(r.name.toLowerCase().trim(), r.id);
     }
 
     // Pre-fetch existing users to check for email / employeeId duplicates
@@ -186,6 +193,7 @@ export async function POST(req: NextRequest) {
       const rawGroup = groupIdx !== -1 ? row[groupIdx]?.trim() : "";
       const rawProfession = professionIdx !== -1 ? row[professionIdx]?.trim() : "";
       const rawPosition = positionIdx !== -1 ? row[positionIdx]?.trim() : "";
+      const rawRank = rankIdx !== -1 ? row[rankIdx]?.trim() : "";
       const rawRoles = rolesIdx !== -1 ? row[rolesIdx]?.trim() : "";
 
       // Validations
@@ -306,6 +314,16 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
+      let employeeRankId: string | null = null;
+      if (rawRank) {
+        const rankId = rankMap.get(rawRank.toLowerCase());
+        if (!rankId) {
+          errors.push({ row: rowNum, message: `Pangkat/Golongan '${rawRank}' tidak ditemukan di database.` });
+          continue;
+        }
+        employeeRankId = rankId;
+      }
+
       const selectedRoles: Role[] = [];
       if (rawRoles) {
         const rolesArr = rawRoles.split(",").map((r) => r.trim().toUpperCase());
@@ -337,6 +355,7 @@ export async function POST(req: NextRequest) {
         employeeGroupId,
         professionGroupId,
         employeePositionId,
+        employeeRankId,
         roles: selectedRoles,
       });
     }
@@ -361,6 +380,7 @@ export async function POST(req: NextRequest) {
               employeeGroupId: u.employeeGroupId,
               professionGroupId: u.professionGroupId,
               employeePositionId: u.employeePositionId,
+              employeeRankId: u.employeeRankId,
             },
           });
 

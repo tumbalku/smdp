@@ -41,7 +41,7 @@ export async function PUT(req: NextRequest) {
     if (errorResponse) return errorResponse;
 
     const body = await req.json();
-    const { namaLahir, alamatLengkap, nomorTelepon, gelarAkademik, gender, birthDate } = body;
+    const { namaLahir, alamatLengkap, nomorTelepon, gelarAkademik, gender, birthDate, agama, pendidikanTerakhir, statusPernikahan } = body;
 
     const updatedProfile = await updateUserProfile(session.user.id, {
       namaLahir,
@@ -50,6 +50,9 @@ export async function PUT(req: NextRequest) {
       gelarAkademik,
       gender,
       birthDate: birthDate ? new Date(birthDate) : undefined,
+      agama,
+      pendidikanTerakhir,
+      statusPernikahan,
     });
 
     return NextResponse.json({ data: updatedProfile, error: null });

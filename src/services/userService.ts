@@ -24,14 +24,21 @@ export async function getUserById(id: string) {
       gelarAkademik: true,
       gender: true,
       birthDate: true,
+      agama: true,
+      pendidikanTerakhir: true,
+      statusPernikahan: true,
       employmentStatusId: true,
       employeeGroupId: true,
       professionGroupId: true,
       employeePositionId: true,
+      employeeRankId: true,
+      workplaceId: true,
       employmentStatus: { select: { id: true, name: true } },
       employeeGroup: { select: { id: true, name: true } },
       professionGroup: { select: { id: true, name: true } },
       employeePosition: { select: { id: true, name: true } },
+      employeeRank: { select: { id: true, name: true } },
+      workplace: { select: { id: true, name: true } },
       roles: {
         select: {
           role: true,
@@ -62,6 +69,9 @@ export async function updateUserProfile(
     gelarAkademik?: string;
     gender?: string;
     birthDate?: Date;
+    agama?: string;
+    pendidikanTerakhir?: string;
+    statusPernikahan?: string;
   }
 ) {
   return prisma.user.update({
@@ -80,6 +90,15 @@ export async function updateUserProfile(
       gelarAkademik: true,
       gender: true,
       birthDate: true,
+      agama: true,
+      pendidikanTerakhir: true,
+      statusPernikahan: true,
+      employmentStatus: { select: { id: true, name: true } },
+      employeeGroup: { select: { id: true, name: true } },
+      professionGroup: { select: { id: true, name: true } },
+      employeePosition: { select: { id: true, name: true } },
+      employeeRank: { select: { id: true, name: true } },
+      workplace: { select: { id: true, name: true } },
     },
   });
 }
@@ -144,6 +163,11 @@ export async function createUser(data: {
   employeeGroupId?: string | null;
   professionGroupId?: string | null;
   employeePositionId?: string | null;
+  employeeRankId?: string | null;
+  workplaceId?: string | null;
+  agama?: string | null;
+  pendidikanTerakhir?: string | null;
+  statusPernikahan?: string | null;
 }) {
   const passwordHash = await bcrypt.hash(data.passwordPlain, 10);
   const selectedRoles = data.roles && data.roles.length > 0 ? data.roles : [Role.EMPLOYEE];
@@ -163,6 +187,11 @@ export async function createUser(data: {
         employeeGroupId: data.employeeGroupId || null,
         professionGroupId: data.professionGroupId || null,
         employeePositionId: data.employeePositionId || null,
+        employeeRankId: data.employeeRankId || null,
+        workplaceId: data.workplaceId || null,
+        agama: data.agama || null,
+        pendidikanTerakhir: data.pendidikanTerakhir || null,
+        statusPernikahan: data.statusPernikahan || null,
       },
     });
 
@@ -187,6 +216,11 @@ export async function createUser(data: {
       employeeGroupId: user.employeeGroupId,
       professionGroupId: user.professionGroupId,
       employeePositionId: user.employeePositionId,
+      employeeRankId: user.employeeRankId,
+      workplaceId: user.workplaceId,
+      agama: user.agama,
+      pendidikanTerakhir: user.pendidikanTerakhir,
+      statusPernikahan: user.statusPernikahan,
     };
   });
 }
@@ -204,6 +238,11 @@ export async function updateUser(
     employeeGroupId?: string | null;
     professionGroupId?: string | null;
     employeePositionId?: string | null;
+    employeeRankId?: string | null;
+    workplaceId?: string | null;
+    agama?: string | null;
+    pendidikanTerakhir?: string | null;
+    statusPernikahan?: string | null;
   }
 ) {
   const selectedRoles = data.roles && data.roles.length > 0 ? data.roles : undefined;
@@ -224,6 +263,11 @@ export async function updateUser(
         employeeGroupId: data.employeeGroupId,
         professionGroupId: data.professionGroupId,
         employeePositionId: data.employeePositionId,
+        employeeRankId: data.employeeRankId,
+        workplaceId: data.workplaceId,
+        agama: data.agama,
+        pendidikanTerakhir: data.pendidikanTerakhir,
+        statusPernikahan: data.statusPernikahan,
       },
       select: {
         id: true,
@@ -238,14 +282,21 @@ export async function updateUser(
         gelarAkademik: true,
         gender: true,
         birthDate: true,
+        agama: true,
+        pendidikanTerakhir: true,
+        statusPernikahan: true,
         employmentStatusId: true,
         employeeGroupId: true,
         professionGroupId: true,
         employeePositionId: true,
+        employeeRankId: true,
+        workplaceId: true,
         employmentStatus: { select: { id: true, name: true } },
         employeeGroup: { select: { id: true, name: true } },
         professionGroup: { select: { id: true, name: true } },
         employeePosition: { select: { id: true, name: true } },
+        employeeRank: { select: { id: true, name: true } },
+        workplace: { select: { id: true, name: true } },
       },
     });
 
@@ -326,14 +377,21 @@ export async function getPaginatedUsers(params: {
         gelarAkademik: true,
         gender: true,
         birthDate: true,
+        agama: true,
+        pendidikanTerakhir: true,
+        statusPernikahan: true,
         employmentStatusId: true,
         employeeGroupId: true,
         professionGroupId: true,
         employeePositionId: true,
+        employeeRankId: true,
+        workplaceId: true,
         employmentStatus: { select: { id: true, name: true } },
         employeeGroup: { select: { id: true, name: true } },
         professionGroup: { select: { id: true, name: true } },
         employeePosition: { select: { id: true, name: true } },
+        employeeRank: { select: { id: true, name: true } },
+        workplace: { select: { id: true, name: true } },
         roles: {
           select: {
             role: true,

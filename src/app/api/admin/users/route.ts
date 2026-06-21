@@ -105,6 +105,11 @@ export async function POST(req: NextRequest) {
       employeeGroupId,
       professionGroupId,
       employeePositionId,
+      employeeRankId,
+      workplaceId,
+      agama,
+      pendidikanTerakhir,
+      statusPernikahan,
     } = parsed.data;
 
     // Check email uniqueness
@@ -155,6 +160,11 @@ export async function POST(req: NextRequest) {
       employeeGroupId: employeeGroupId || null,
       professionGroupId: professionGroupId || null,
       employeePositionId: employeePositionId || null,
+      employeeRankId: employeeRankId || null,
+      workplaceId: workplaceId || null,
+      agama: agama || null,
+      pendidikanTerakhir: pendidikanTerakhir || null,
+      statusPernikahan: statusPernikahan || null,
     });
 
     // Log security event (Success)
@@ -251,6 +261,11 @@ export async function PATCH(req: NextRequest) {
       employeeGroupId,
       professionGroupId,
       employeePositionId,
+      employeeRankId,
+      workplaceId,
+      agama,
+      pendidikanTerakhir,
+      statusPernikahan,
     } = parsed.data;
 
     const oldUser = await prisma.user.findUnique({
@@ -322,6 +337,11 @@ export async function PATCH(req: NextRequest) {
       employeeGroupId: employeeGroupId || null,
       professionGroupId: professionGroupId || null,
       employeePositionId: employeePositionId || null,
+      employeeRankId: employeeRankId || null,
+      workplaceId: workplaceId || null,
+      agama: agama || null,
+      pendidikanTerakhir: pendidikanTerakhir || null,
+      statusPernikahan: statusPernikahan || null,
     });
 
     // Log success

@@ -9,10 +9,16 @@ export interface UserProfile {
   gelarAkademik: string | null;
   gender: string | null;
   birthDate: string | null;
+  agama: string | null;
+  pendidikanTerakhir: string | null;
+  statusPernikahan: string | null;
   createdAt: string;
   employmentStatus: { name: string } | null;
   employeeGroup: { name: string } | null;
+  professionGroup: { name: string } | null;
   employeePosition: { name: string } | null;
+  employeeRank: { name: string } | null;
+  workplace: { name: string } | null;
 }
 
 export interface NipDetails {

@@ -12,6 +12,11 @@ export const createUserSchema = z.object({
   employeeGroupId: z.string().optional().nullable(),
   professionGroupId: z.string().optional().nullable(),
   employeePositionId: z.string().optional().nullable(),
+  employeeRankId: z.string().optional().nullable(),
+  workplaceId: z.string().optional().nullable(),
+  agama: z.string().optional().nullable(),
+  pendidikanTerakhir: z.string().optional().nullable(),
+  statusPernikahan: z.string().optional().nullable(),
 });
 
 export const updateUserSchema = z.object({
@@ -26,6 +31,11 @@ export const updateUserSchema = z.object({
   employeeGroupId: z.string().optional().nullable(),
   professionGroupId: z.string().optional().nullable(),
   employeePositionId: z.string().optional().nullable(),
+  employeeRankId: z.string().optional().nullable(),
+  workplaceId: z.string().optional().nullable(),
+  agama: z.string().optional().nullable(),
+  pendidikanTerakhir: z.string().optional().nullable(),
+  statusPernikahan: z.string().optional().nullable(),
 });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;

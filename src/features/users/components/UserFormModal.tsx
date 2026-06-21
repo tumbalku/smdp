@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User, UserFormData, EmploymentStatusOption, ProfessionGroupOption } from "../types";
+import { User, UserFormData, EmploymentStatusOption, ProfessionGroupOption, EmployeeRankOption, WorkplaceOption } from "../types";
 
 interface UserFormModalProps {
   open: boolean;
@@ -28,6 +28,8 @@ interface UserFormModalProps {
   onSubmit: (data: UserFormData) => void;
   employmentStatuses: EmploymentStatusOption[];
   professionGroups: ProfessionGroupOption[];
+  employeeRanks: EmployeeRankOption[];
+  workplaces: WorkplaceOption[];
   initialData?: User | null;
 }
 
@@ -39,6 +41,8 @@ export function UserFormModal({
   onSubmit,
   employmentStatuses,
   professionGroups,
+  employeeRanks,
+  workplaces,
   initialData = null,
 }: UserFormModalProps) {
   // Local Form states initialized directly from initialData
@@ -48,11 +52,16 @@ export function UserFormModal({
   const [employeeId, setEmployeeId] = useState("");
   const [gender, setGender] = useState("L");
   const [birthDate, setBirthDate] = useState("");
+  const [agama, setAgama] = useState("");
+  const [pendidikanTerakhir, setPendidikanTerakhir] = useState("");
   const [roles, setRoles] = useState<string[]>(["EMPLOYEE"]);
   const [employmentStatusId, setEmploymentStatusId] = useState("");
   const [employeeGroupId, setEmployeeGroupId] = useState("");
   const [professionGroupId, setProfessionGroupId] = useState("");
   const [employeePositionId, setEmployeePositionId] = useState("");
+  const [employeeRankId, setEmployeeRankId] = useState("");
+  const [workplaceId, setWorkplaceId] = useState("");
+  const [statusPernikahan, setStatusPernikahan] = useState("");
 
   // Sync inputs on open or initialData change
   useEffect(() => {
@@ -63,11 +72,16 @@ export function UserFormModal({
       setEmployeeId(isEdit && initialData ? initialData.employeeId || "" : "");
       setGender(isEdit && initialData ? initialData.gender || "L" : "L");
       setBirthDate(isEdit && initialData && initialData.birthDate ? initialData.birthDate.split("T")[0] : "");
+      setAgama(isEdit && initialData ? initialData.agama || "" : "");
+      setPendidikanTerakhir(isEdit && initialData ? initialData.pendidikanTerakhir || "" : "");
       setRoles(isEdit && initialData ? initialData.roles || [] : ["EMPLOYEE"]);
       setEmploymentStatusId(isEdit && initialData ? initialData.employmentStatusId || "" : "");
       setEmployeeGroupId(isEdit && initialData ? initialData.employeeGroupId || "" : "");
       setProfessionGroupId(isEdit && initialData ? initialData.professionGroupId || "" : "");
       setEmployeePositionId(isEdit && initialData ? initialData.employeePositionId || "" : "");
+      setEmployeeRankId(isEdit && initialData ? initialData.employeeRankId || "" : "");
+      setWorkplaceId(isEdit && initialData ? initialData.workplaceId || "" : "");
+      setStatusPernikahan(isEdit && initialData ? initialData.statusPernikahan || "" : "");
     }
   }, [open, isEdit, initialData]);
 
@@ -93,6 +107,11 @@ export function UserFormModal({
       employeeGroupId: employeeGroupId || null,
       professionGroupId: professionGroupId || null,
       employeePositionId: employeePositionId || null,
+      employeeRankId: employeeRankId || null,
+      workplaceId: workplaceId || null,
+      agama: agama || null,
+      pendidikanTerakhir: pendidikanTerakhir || null,
+      statusPernikahan: statusPernikahan || null,
     };
     if (!isEdit) {
       data.password = password;
@@ -199,6 +218,66 @@ export function UserFormModal({
                 />
               </div>
 
+              <div className="space-y-1.5">
+                <Label htmlFor="formAgama" className="text-xs font-bold text-muted-foreground">
+                  Agama
+                </Label>
+                <Select value={agama} onValueChange={(val) => setAgama(val || "")}>
+                  <SelectTrigger id="formAgama" className="w-full text-xs">
+                    <SelectValue placeholder="Pilih Agama" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Islam">Islam</SelectItem>
+                    <SelectItem value="Kristen Protestan">Kristen Protestan</SelectItem>
+                    <SelectItem value="Kristen Katolik">Kristen Katolik</SelectItem>
+                    <SelectItem value="Hindu">Hindu</SelectItem>
+                    <SelectItem value="Buddha">Buddha</SelectItem>
+                    <SelectItem value="Khonghucu">Khonghucu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="formPendidikanTerakhir" className="text-xs font-bold text-muted-foreground">
+                  Pendidikan Terakhir
+                </Label>
+                <Select value={pendidikanTerakhir} onValueChange={(val) => setPendidikanTerakhir(val || "")}>
+                  <SelectTrigger id="formPendidikanTerakhir" className="w-full text-xs">
+                    <SelectValue placeholder="Pilih Pendidikan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SD">SD</SelectItem>
+                    <SelectItem value="SMP">SMP</SelectItem>
+                    <SelectItem value="SMA / SMK">SMA / SMK</SelectItem>
+                    <SelectItem value="D1">D1</SelectItem>
+                    <SelectItem value="D2">D2</SelectItem>
+                    <SelectItem value="D3">D3</SelectItem>
+                    <SelectItem value="D4 / S1">D4 / S1</SelectItem>
+                    <SelectItem value="S2">S2</SelectItem>
+                    <SelectItem value="S3">S3</SelectItem>
+                    <SelectItem value="Sp-1">Sp-1</SelectItem>
+                    <SelectItem value="Sp-2">Sp-2</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="formStatusPernikahan" className="text-xs font-bold text-muted-foreground">
+                  Status Pernikahan
+                </Label>
+                <Select value={statusPernikahan} onValueChange={(val) => setStatusPernikahan(val || "")}>
+                  <SelectTrigger id="formStatusPernikahan" className="w-full text-xs">
+                    <SelectValue placeholder="Pilih Status Pernikahan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Belum Kawin">Belum Kawin</SelectItem>
+                    <SelectItem value="Kawin">Kawin</SelectItem>
+                    <SelectItem value="Cerai Hidup">Cerai Hidup</SelectItem>
+                    <SelectItem value="Cerai Mati">Cerai Mati</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Status Kepegawaian */}
               <div className="space-y-1.5">
                 <Label htmlFor="formStatus" className="text-xs font-bold text-muted-foreground">
@@ -258,6 +337,54 @@ export function UserFormModal({
                     ).map((g) => (
                       <SelectItem key={g.id} value={g.id}>
                         {g.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Pangkat/Golongan */}
+              <div className="space-y-1.5">
+                <Label htmlFor="formRank" className="text-xs font-bold text-muted-foreground">
+                  Pangkat / Golongan
+                </Label>
+                <Select
+                  value={employeeRankId}
+                  onValueChange={(val) => setEmployeeRankId(val || "")}
+                >
+                  <SelectTrigger id="formRank" className="w-full text-xs">
+                    <SelectValue placeholder="Pilih Pangkat/Golongan">
+                      {employeeRanks.find((r) => r.id === employeeRankId)?.name}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {employeeRanks.map((r) => (
+                      <SelectItem key={r.id} value={r.id}>
+                        {r.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tempat Tugas */}
+              <div className="space-y-1.5">
+                <Label htmlFor="formWorkplace" className="text-xs font-bold text-muted-foreground">
+                  Tempat Tugas
+                </Label>
+                <Select
+                  value={workplaceId}
+                  onValueChange={(val) => setWorkplaceId(val || "")}
+                >
+                  <SelectTrigger id="formWorkplace" className="w-full text-xs">
+                    <SelectValue placeholder="Pilih Tempat Tugas">
+                      {workplaces.find((w) => w.id === workplaceId)?.name}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workplaces.map((w) => (
+                      <SelectItem key={w.id} value={w.id}>
+                        {w.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

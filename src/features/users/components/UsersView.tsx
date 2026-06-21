@@ -52,6 +52,8 @@ export function UsersView() {
     statsLoading,
     employmentStatuses,
     professionGroups,
+    employeeRanks,
+    workplaces,
     search,
     setSearch,
     roleFilter,
@@ -209,6 +211,7 @@ export function UsersView() {
           <AlertDescription className="text-xs font-semibold">{errorMsg}</AlertDescription>
         </Alert>
       )}
+
 
       {/* Charts Section */}
       {!mounted || statsLoading ? (
@@ -408,6 +411,8 @@ export function UsersView() {
           onSubmit={handleCreateUser}
           employmentStatuses={employmentStatuses}
           professionGroups={professionGroups}
+          employeeRanks={employeeRanks}
+          workplaces={workplaces}
         />
       )}
 
@@ -421,6 +426,8 @@ export function UsersView() {
           onSubmit={handleUpdateUser}
           employmentStatuses={employmentStatuses}
           professionGroups={professionGroups}
+          employeeRanks={employeeRanks}
+          workplaces={workplaces}
           initialData={selectedUser}
         />
       )}
@@ -455,6 +462,8 @@ export function UsersView() {
         onOpenChange={setManageCategoriesOpen}
         employmentStatuses={employmentStatuses}
         professionGroups={professionGroups}
+        employeeRanks={employeeRanks}
+        workplaces={workplaces}
         onSuccess={() => {
           fetchCategories();
           setSuccessMsg("Kategori kepegawaian berhasil diperbarui.");

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { UserProfile } from "../types";
 
@@ -16,6 +17,9 @@ export function useProfile() {
     gelarAkademik: "",
     gender: "L",
     birthDate: "",
+    agama: "",
+    pendidikanTerakhir: "",
+    statusPernikahan: "",
   });
 
   const fetchProfile = async () => {
@@ -34,6 +38,9 @@ export function useProfile() {
           gelarAkademik: p.gelarAkademik || "",
           gender: p.gender || "L",
           birthDate: p.birthDate ? p.birthDate.split("T")[0] : "",
+          agama: p.agama || "",
+          pendidikanTerakhir: p.pendidikanTerakhir || "",
+          statusPernikahan: p.statusPernikahan || "",
         });
       } else {
         throw new Error(resData.error?.message || "Gagal mengambil data profil.");
@@ -68,6 +75,9 @@ export function useProfile() {
           gelarAkademik: formValues.gelarAkademik,
           gender: formValues.gender,
           birthDate: formValues.birthDate || null,
+          agama: formValues.agama || null,
+          pendidikanTerakhir: formValues.pendidikanTerakhir || null,
+          statusPernikahan: formValues.statusPernikahan || null,
         }),
       });
 
@@ -90,6 +100,9 @@ export function useProfile() {
           gelarAkademik: p.gelarAkademik || "",
           gender: p.gender || "L",
           birthDate: p.birthDate ? p.birthDate.split("T")[0] : "",
+          agama: p.agama || "",
+          pendidikanTerakhir: p.pendidikanTerakhir || "",
+          statusPernikahan: p.statusPernikahan || "",
         });
       }
     } catch (err) {

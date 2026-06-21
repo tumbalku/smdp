@@ -14,7 +14,9 @@ async function main() {
   await prisma.securityLog.deleteMany({});
   await prisma.userRole.deleteMany({});
   await prisma.user.deleteMany({});
+  await prisma.workplace.deleteMany({});
   await prisma.employeePosition.deleteMany({});
+  await prisma.employeeRank.deleteMany({});
   await prisma.professionGroup.deleteMany({});
   await prisma.employeeGroup.deleteMany({});
   await prisma.employmentStatus.deleteMany({});
@@ -101,6 +103,43 @@ async function main() {
   }
   console.log("✅ Master kepegawaian seeded successfully!");
 
+  // 2b. Seed Master Pangkat (Employee Ranks)
+  const ranks = [
+    "Pembina Utama Muda (IV/c)",
+    "Pembina (IV/a)",
+    "Penata Tingkat I (III/d)",
+    "Penata (III/c)",
+    "Penata Muda Tingkat I (III/b)",
+    "Penata Muda (III/a)",
+    "Pengatur (II/c)",
+  ];
+  const rankMap: { [key: string]: string } = {};
+  for (const rName of ranks) {
+    const r = await prisma.employeeRank.create({
+      data: { name: rName },
+    });
+    rankMap[rName] = r.id;
+  }
+  console.log("✅ Master pangkat seeded successfully!");
+
+  // 2c. Seed Master Tempat Tugas (Workplaces)
+  const workplacesData = [
+    "Ruang ICCU",
+    "Ruang ICU",
+    "Ruang Isolasi",
+    "Ruang Laika Mendidoha Lt.I (Kelas I)",
+    "Ruang Lambu Barakati Lt.I",
+  ];
+  const workplaceMap: { [key: string]: string } = {};
+  for (const wName of workplacesData) {
+    const w = await prisma.workplace.create({
+      data: { name: wName },
+    });
+    workplaceMap[wName] = w.id;
+  }
+  console.log("✅ Master tempat tugas seeded successfully!");
+
+
   // 3. Seed Users (Exactly 6 users: 2 PNS, 2 PPPK, 2 BLUD; 1 Admin, 1 Staff, 4 Employees)
   const passwordHashAdmin = await bcrypt.hash("admin123", 10);
   const passwordHashStaff = await bcrypt.hash("staff123", 10);
@@ -119,6 +158,10 @@ async function main() {
       employeeGroupName: "PNS",
       professionGroupName: "Administrasi",
       employeePositionName: "Pranata Komputer",
+      employeeRankName: "Pembina (IV/a)",
+      workplaceName: "Ruang Lambu Barakati Lt.I",
+      agama: "Islam",
+      pendidikanTerakhir: "S2",
     },
     {
       email: "staff@smdp.local",
@@ -132,6 +175,10 @@ async function main() {
       employeeGroupName: "PNS",
       professionGroupName: "Administrasi",
       employeePositionName: "Pranata Komputer",
+      employeeRankName: "Penata Tingkat I (III/d)",
+      workplaceName: "Ruang Lambu Barakati Lt.I",
+      agama: "Islam",
+      pendidikanTerakhir: "D4 / S1",
     },
     {
       email: "pppk1@smdp.local",
@@ -145,6 +192,10 @@ async function main() {
       employeeGroupName: "PNS",
       professionGroupName: "Keperawatan",
       employeePositionName: "Perawat Ahli Pertama",
+      employeeRankName: "Penata Muda (III/a)",
+      workplaceName: "Ruang ICCU",
+      agama: "Kristen Protestan",
+      pendidikanTerakhir: "D4 / S1",
     },
     {
       email: "pppk2@smdp.local",
@@ -158,6 +209,10 @@ async function main() {
       employeeGroupName: "PPPK",
       professionGroupName: "Administrasi",
       employeePositionName: "Pranata Komputer",
+      employeeRankName: "Penata Muda (III/a)",
+      workplaceName: "Ruang ICU",
+      agama: "Islam",
+      pendidikanTerakhir: "D3",
     },
     {
       email: "blud1@smdp.local",
@@ -171,6 +226,10 @@ async function main() {
       employeeGroupName: "BLUD Tetap",
       professionGroupName: "Medis",
       employeePositionName: "Dokter Umum",
+      employeeRankName: null,
+      workplaceName: "Ruang Isolasi",
+      agama: "Islam",
+      pendidikanTerakhir: "Sp-1",
     },
     {
       email: "blud2@smdp.local",
@@ -184,6 +243,10 @@ async function main() {
       employeeGroupName: "BLUD Kontrak",
       professionGroupName: "Kebidanan",
       employeePositionName: "Bidan Ahli Muda",
+      employeeRankName: null,
+      workplaceName: "Ruang Laika Mendidoha Lt.I (Kelas I)",
+      agama: "Hindu",
+      pendidikanTerakhir: "D3",
     },
   ];
 
@@ -192,6 +255,8 @@ async function main() {
     let employeeGroupId: string | null = null;
     let professionGroupId: string | null = null;
     let employeePositionId: string | null = null;
+    let employeeRankId: string | null = null;
+    let workplaceId: string | null = null;
 
     if (user.employmentStatusName) {
       employmentStatusId = statusMap[user.employmentStatusName] || null;
@@ -204,6 +269,12 @@ async function main() {
       if (user.employeePositionName) {
         employeePositionId = positionMap[`${user.professionGroupName}_${user.employeePositionName}`] || null;
       }
+    }
+    if (user.employeeRankName) {
+      employeeRankId = rankMap[user.employeeRankName] || null;
+    }
+    if (user.workplaceName) {
+      workplaceId = workplaceMap[user.workplaceName] || null;
     }
 
     const dbUser = await prisma.user.create({
@@ -219,6 +290,10 @@ async function main() {
         employeeGroupId,
         professionGroupId,
         employeePositionId,
+        employeeRankId,
+        workplaceId,
+        agama: user.agama,
+        pendidikanTerakhir: user.pendidikanTerakhir,
       },
     });
 
