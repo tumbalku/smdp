@@ -20,11 +20,7 @@ export function LoginView() {
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
-      if (session.user.role === "HR_ADMIN" || session.user.role === "STAFF") {
-        router.replace("/admin/dashboard");
-      } else {
-        router.replace("/employee/dashboard");
-      }
+      router.replace("/dashboard");
     }
   }, [status, session, router]);
 

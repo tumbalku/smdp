@@ -17,12 +17,11 @@ import {
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const pageTitles: Record<string, string> = {
-  "/admin/dashboard": "Dashboard Admin",
+  "/dashboard": "Dashboard",
   "/admin/document-types": "Konfigurasi Dokumen",
   "/admin/security-logs": "Audit Log Keamanan",
   "/admin/users": "Manajemen Pegawai",
   "/admin/categories": "Kelola Kategori Kepegawaian",
-  "/employee/dashboard": "Portal Dokumen Pegawai",
   "/profile": "Profil Saya",
 };
 
@@ -45,11 +44,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
     .slice(0, 2);
 
   const getDashboardHref = () => {
-    const roles = session?.user?.roles ?? (session?.user?.role ? [session.user.role] : []);
-    if (roles.includes("HR_ADMIN") || roles.includes("STAFF")) {
-      return "/admin/dashboard";
-    }
-    return "/employee/dashboard";
+    return "/dashboard";
   };
 
   return (

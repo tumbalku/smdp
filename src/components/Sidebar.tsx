@@ -38,19 +38,11 @@ export function Sidebar({ onClose }: SidebarProps) {
     const links = [];
 
     // 1. Dashboard Link
-    if (hasAdmin || hasStaff) {
-      links.push({
-        href: "/admin/dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-      });
-    } else if (hasEmployee) {
-      links.push({
-        href: "/employee/dashboard",
-        label: "Dashboard Dokumen",
-        icon: FileCheck,
-      });
-    }
+    links.push({
+      href: "/dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+    });
 
     // 2. Verifikasi Berkas (Admin or Staff)
     if (hasAdmin || hasStaff) {

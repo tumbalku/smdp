@@ -24,11 +24,7 @@ export async function proxy(req: NextRequest) {
   // Handle Login page redirect if already authenticated
   if (pathname.startsWith("/login")) {
     if (token) {
-      if (token.role === "HR_ADMIN" || token.role === "STAFF") {
-        return NextResponse.redirect(new URL("/admin/dashboard", req.url));
-      } else {
-        return NextResponse.redirect(new URL("/employee/dashboard", req.url));
-      }
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
     return NextResponse.next();
   }
@@ -45,14 +41,18 @@ export async function proxy(req: NextRequest) {
 
   // Role-based route guard
   if (pathname.startsWith("/admin")) {
-    if (token.role === "EMPLOYEE") {
-      return NextResponse.redirect(new URL("/employee/dashboard", req.url));
+    const roles = token.roles || [token.role];
+    const hasAdmin = roles.includes("HR_ADMIN");
+    const hasStaff = roles.includes("STAFF");
+    if (!hasAdmin && !hasStaff) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
-  }
-
-  if (pathname.startsWith("/employee")) {
-    if (token.role === "HR_ADMIN" || token.role === "STAFF") {
-      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    // Staff specific restriction: Staff cannot visit users, doc types, categories, or logs
+    if (hasStaff && !hasAdmin) {
+      const adminOnlyPaths = ["/admin/users", "/admin/document-types", "/admin/security-logs", "/admin/categories"];
+      if (adminOnlyPaths.some((p) => pathname.startsWith(p))) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
     }
   }
 
