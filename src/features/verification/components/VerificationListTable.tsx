@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -10,15 +11,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, CheckCircle, Eye, Calendar } from "lucide-react";
+import { Loader2, CheckCircle, Eye, Calendar, Trash2 } from "lucide-react";
 import { DocumentRecord } from "../types";
 
 interface VerificationListTableProps {
   documents: DocumentRecord[];
   loading: boolean;
+  onDelete?: (docId: string) => void;
+  deletingId?: string | null;
 }
 
-export function VerificationListTable({ documents, loading }: VerificationListTableProps) {
+export function VerificationListTable({
+  documents,
+  loading,
+  onDelete,
+  deletingId,
+}: VerificationListTableProps) {
   const getStatusBadge = (docStatus: string) => {
     switch (docStatus) {
       case "APPROVED":
@@ -120,13 +128,31 @@ export function VerificationListTable({ documents, loading }: VerificationListTa
                     {getStatusBadge(doc.status)}
                   </TableCell>
                   <TableCell className="text-right pr-4 align-middle">
-                    <Link
-                      href={`/admin/verification/${doc.id}`}
-                      className="inline-flex items-center justify-center rounded-md border border-input bg-background hover:bg-muted h-8 px-3 text-[10px] font-bold text-foreground transition-colors gap-1"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      Tinjau Berkas
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/verification/${doc.id}`}
+                        className="inline-flex items-center justify-center rounded-md border border-input bg-background hover:bg-muted h-8 px-3 text-[10px] font-bold text-foreground transition-colors gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        Tinjau Berkas
+                      </Link>
+                      {onDelete && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => onDelete(doc.id)}
+                          disabled={deletingId === doc.id}
+                          className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                          title="Hapus Dokumen"
+                        >
+                          {deletingId === doc.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

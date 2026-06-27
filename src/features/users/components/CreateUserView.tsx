@@ -124,7 +124,7 @@ export function CreateUserView() {
       }
 
       // Redirect back to user list page
-      router.push("/admin/users");
+      router.push("/users");
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "Terjadi kesalahan saat mendaftarkan pegawai.");
@@ -145,7 +145,7 @@ export function CreateUserView() {
     <div className="page-container animate-fadeIn max-w-7xl mx-auto" id="create-user-page-container">
       {/* Header */}
       <div className="flex items-center gap-4 border-b border-border/80 pb-5 mb-6">
-        <Link href="/admin/users">
+        <Link href="/users">
           <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -322,7 +322,7 @@ export function CreateUserView() {
                     <SelectItem value="Belum Kawin">Belum Kawin</SelectItem>
                     <SelectItem value="Kawin">Kawin</SelectItem>
                     <SelectItem value="Cerai Hidup">Cerai Hidup</SelectItem>
-                    <SelectItem value="Cerai Mati">Cerai Mati</SelectItem>
+                    <SelectItem value="Cerai Meninggal">Cerai Meninggal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -542,7 +542,7 @@ export function CreateUserView() {
 
             {/* Form Footer Buttons */}
             <div className="pt-6 flex items-center justify-end gap-3 border-t border-border/50">
-              <Link href="/admin/users">
+              <Link href="/users">
                 <Button type="button" variant="outline" disabled={submitting}>
                   Batal
                 </Button>

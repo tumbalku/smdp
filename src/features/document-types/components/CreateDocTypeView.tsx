@@ -73,7 +73,7 @@ export function CreateDocTypeView() {
         throw new Error(resData.error?.message || "Gagal membuat jenis dokumen.");
       }
 
-      router.push("/admin/document-types");
+      router.push("/document-types");
     } catch (err: any) {
       setErrorMsg(err.message || "Gagal membuat jenis dokumen.");
       setLoading(false);
@@ -83,7 +83,7 @@ export function CreateDocTypeView() {
   return (
     <div className="page-container animate-fadeIn">
       <div className="flex items-center gap-4 border-b border-border/80 pb-5">
-        <Link href="/admin/document-types">
+        <Link href="/document-types">
           <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -276,7 +276,7 @@ export function CreateDocTypeView() {
             </div>
 
             <div className="pt-6 flex items-center justify-end gap-3 border-t border-border/50">
-              <Link href="/admin/document-types">
+              <Link href="/document-types">
                 <Button type="button" variant="outline" disabled={loading}>
                   Batal
                 </Button>

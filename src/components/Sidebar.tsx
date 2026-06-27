@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -14,7 +15,10 @@ import {
   X,
   FileCheck,
   Calendar,
-  Layers,
+  ChevronDown,
+  ChevronRight,
+  Shield,
+  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -22,82 +26,105 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
+interface NavSubItem {
+  href: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  roles: string[];
+}
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  roles: string[];
+  subItems?: NavSubItem[];
+}
+
+/**
+ * Konfigurasi navigasi berbasis role dengan dukungan sub-menu.
+ */
+const NAV_ITEMS: NavItem[] = [
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    roles: ["HR_ADMIN", "STAFF", "EMPLOYEE"],
+    subItems: [
+      {
+        href: "/dashboard/administrasi",
+        label: "Administrasi",
+        icon: Shield,
+        roles: ["HR_ADMIN", "STAFF"],
+      },
+      {
+        href: "/dashboard/pegawai",
+        label: "Pegawai",
+        icon: UserCheck,
+        roles: ["EMPLOYEE"],
+      },
+    ],
+  },
+  {
+    href: "/verification",
+    label: "Verifikasi Berkas",
+    icon: FileCheck,
+    roles: ["HR_ADMIN", "STAFF"],
+  },
+  {
+    href: "/document-types",
+    label: "Konfigurasi Dokumen",
+    icon: Settings,
+    roles: ["HR_ADMIN"],
+  },
+  {
+    href: "/security-logs",
+    label: "Audit Log Keamanan",
+    icon: ShieldAlert,
+    roles: ["HR_ADMIN"],
+  },
+  {
+    href: "/users",
+    label: "Manajemen Pegawai",
+    icon: Users,
+    roles: ["HR_ADMIN"],
+  },
+  {
+    href: "/calendar",
+    label: "Kalender & Libur",
+    icon: Calendar,
+    roles: ["HR_ADMIN", "STAFF", "EMPLOYEE"],
+  },
+  {
+    href: "/profile",
+    label: "Profil Saya",
+    icon: User,
+    roles: ["HR_ADMIN", "STAFF", "EMPLOYEE"],
+  },
+];
+
+const ROLE_LABELS: Record<string, string> = {
+  HR_ADMIN: "HR Admin",
+  STAFF: "Staff Kepegawaian",
+  EMPLOYEE: "Pegawai",
+};
+
 export function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = session?.user?.role;
+  const roles: string[] = session?.user?.roles?.length
+    ? session.user.roles
+    : role
+      ? [role]
+      : [];
 
-  // Determine navigation menu items based on role
-  const getNavLinks = () => {
-    const roles = session?.user?.roles ?? (session?.user?.role ? [session.user.role] : []);
-    
-    const hasAdmin = roles.includes("HR_ADMIN");
-    const hasStaff = roles.includes("STAFF");
-    const hasEmployee = roles.includes("EMPLOYEE");
+  const [dashboardOpen, setDashboardOpen] = useState(true);
 
-    const links = [];
-
-    // 1. Dashboard Link
-    links.push({
-      href: "/dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-    });
-
-    // 2. Verifikasi Berkas (Admin or Staff)
-    if (hasAdmin || hasStaff) {
-      links.push({
-        href: "/admin/verification",
-        label: "Verifikasi Berkas",
-        icon: FileCheck,
-      });
-    }
-
-    // 3. Konfigurasi Dokumen (Admin only)
-    if (hasAdmin) {
-      links.push({
-        href: "/admin/document-types",
-        label: "Konfigurasi Dokumen",
-        icon: Settings,
-      });
-    }
-
-    // 4. Audit Log Keamanan (Admin only)
-    if (hasAdmin) {
-      links.push({
-        href: "/admin/security-logs",
-        label: "Audit Log Keamanan",
-        icon: ShieldAlert,
-      });
-    }
-
-    // 5. Manajemen Pegawai (Admin only)
-    if (hasAdmin) {
-      links.push({
-        href: "/admin/users",
-        label: "Manajemen Pegawai",
-        icon: Users,
-      });
-    }
-
-    // 6. Kalender & Libur (Everyone)
-    links.push({
-      href: "/calendar",
-      label: "Kalender & Libur",
-      icon: Calendar,
-    });
-
-    // 7. Profil Saya (Everyone)
-    links.push({
-      href: "/profile",
-      label: "Profil Saya",
-      icon: User,
-    });
-
-    return links;
-  };
-
-  const navLinks = getNavLinks();
+  // Filter menu utama berdasarkan role user
+  const navLinks = NAV_ITEMS.filter((item) =>
+    item.roles.some((r) => roles.includes(r))
+  );
 
   return (
     <div
@@ -140,7 +167,66 @@ export function Sidebar({ onClose }: SidebarProps) {
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
         {navLinks.map((link) => {
           const Icon = link.icon;
-          const isActive = pathname === link.href;
+          const isParentActive = pathname === link.href || pathname.startsWith(link.href + "/");
+
+          // Filter subItems berdasarkan role user jika ada
+          const allowedSubItems = link.subItems
+            ? link.subItems.filter((sub) => sub.roles.some((r) => roles.includes(r)))
+            : [];
+
+          if (allowedSubItems.length > 0) {
+            return (
+              <div key={link.href} className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => setDashboardOpen(!dashboardOpen)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group text-white/60 hover:text-white hover:bg-white/10"
+                  )}
+                  id={`sidebar-link-${link.href.replace(/\//g, "-")}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" />
+                    <span className="whitespace-nowrap">{link.label}</span>
+                  </div>
+                  {dashboardOpen ? (
+                    <ChevronDown className="w-4 h-4 text-white/40 group-hover:text-white" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white" />
+                  )}
+                </button>
+
+                {/* Sub Menu Links */}
+                {dashboardOpen && (
+                  <div className="pl-6 space-y-1 pt-0.5">
+                    {allowedSubItems.map((sub) => {
+                      const SubIcon = sub.icon;
+                      const isSubActive = pathname === sub.href;
+                      return (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          onClick={onClose}
+                          className={cn(
+                            "flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 group",
+                            isSubActive
+                              ? "text-white bg-white/15 shadow-xs border-l-2 border-[#6c63ff]"
+                              : "text-white/50 hover:text-white hover:bg-white/10"
+                          )}
+                          id={`sidebar-sublink-${sub.href.replace(/\//g, "-")}`}
+                        >
+                          {SubIcon && (
+                            <SubIcon className={cn("w-4 h-4 flex-shrink-0", isSubActive ? "text-[#6c63ff]" : "text-white/40 group-hover:text-white")} />
+                          )}
+                          <span className="whitespace-nowrap">{sub.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
 
           return (
             <Link
@@ -149,12 +235,12 @@ export function Sidebar({ onClose }: SidebarProps) {
               onClick={onClose}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group",
-                isActive
+                isParentActive
                   ? "text-white shadow-lg"
                   : "text-white/60 hover:text-white hover:bg-white/10"
               )}
               style={
-                isActive
+                isParentActive
                   ? {
                       background: "var(--jobster-accent, #6c63ff)",
                       boxShadow: "0 4px 15px rgba(108,99,255,0.35)",
@@ -166,11 +252,11 @@ export function Sidebar({ onClose }: SidebarProps) {
               <Icon
                 className={cn(
                   "w-5 h-5 flex-shrink-0 transition-transform duration-200",
-                  isActive ? "scale-110" : "group-hover:scale-110"
+                  isParentActive ? "scale-110" : "group-hover:scale-110"
                 )}
               />
               <span className="whitespace-nowrap">{link.label}</span>
-              {isActive && (
+              {isParentActive && (
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white opacity-80" />
               )}
             </Link>
@@ -183,7 +269,7 @@ export function Sidebar({ onClose }: SidebarProps) {
         <div className="px-4 py-1.5 rounded-lg bg-white/5 border border-white/10">
           <p className="text-[10px] uppercase tracking-wider text-white/40">Role Anda</p>
           <p className="text-xs text-white/80 font-bold tracking-wide mt-0.5">
-            {role === "HR_ADMIN" ? "HR Admin" : role === "STAFF" ? "Staff Kepegawaian" : "Pegawai"}
+            {ROLE_LABELS[role ?? ""] ?? role ?? "—"}
           </p>
         </div>
         <button

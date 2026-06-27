@@ -41,7 +41,11 @@ yarn-error.log*
 next-env.d.ts
 
 # agents
-/.agents/
+/.agent/
 
 # storage
 /storage/
+
+# docs
+/docs/
+/.idea/

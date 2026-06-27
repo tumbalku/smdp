@@ -5,13 +5,13 @@ export function useVerification(documentId: string) {
   const [doc, setDoc] = useState<DocumentDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
   const [rejectMode, setRejectMode] = useState(false);
   const [reviewNote, setReviewNote] = useState("");
 
-  // ponytail: declare fetcher as stable callback to be run both on mount/updates and directly inside mutator handlers
   const fetchDocumentDetails = useCallback(async () => {
     if (!documentId) return;
     setLoading(true);
@@ -70,7 +70,6 @@ export function useVerification(documentId: string) {
       setRejectMode(false);
       setReviewNote("");
 
-      // ponytail: refresh document info directly
       fetchDocumentDetails();
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : "Gagal memproses verifikasi berkas.";
@@ -80,10 +79,35 @@ export function useVerification(documentId: string) {
     }
   };
 
+  const handleDelete = async (onSuccessRedirect?: () => void) => {
+    if (!documentId) return;
+    if (!window.confirm("Apakah Anda yakin ingin menghapus dokumen ini secara permanen?")) return;
+
+    setDeleteLoading(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch(`/api/documents/${documentId}`, {
+        method: "DELETE",
+      });
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.error?.message || "Gagal menghapus dokumen.");
+      }
+      if (onSuccessRedirect) {
+        onSuccessRedirect();
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Gagal menghapus dokumen.";
+      setErrorMsg(errMsg);
+      setDeleteLoading(false);
+    }
+  };
+
   return {
     doc,
     loading,
     submitLoading,
+    deleteLoading,
     errorMsg,
     setErrorMsg,
     successMsg,
@@ -94,5 +118,6 @@ export function useVerification(documentId: string) {
     setReviewNote,
     fetchDocumentDetails,
     handleAction,
+    handleDelete,
   };
 }

@@ -162,7 +162,7 @@ export function EditUserView({ userId }: EditUserViewProps) {
       }
 
       router.push(
-        `/admin/users?success=${encodeURIComponent(`Data pegawai "${name}" berhasil diperbarui.`)}`
+        `/users?success=${encodeURIComponent(`Data pegawai "${name}" berhasil diperbarui.`)}`
       );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Gagal menyimpan perubahan.";
@@ -190,7 +190,7 @@ export function EditUserView({ userId }: EditUserViewProps) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Link href="/admin/users" passHref>
+          <Link href="/users" passHref>
             <Button variant="outline" size="sm" className="h-9 font-bold text-xs gap-1.5">
               <ArrowLeft className="w-4 h-4" />
               Kembali
@@ -356,7 +356,7 @@ export function EditUserView({ userId }: EditUserViewProps) {
                     <SelectItem value="Belum Kawin">Belum Kawin</SelectItem>
                     <SelectItem value="Kawin">Kawin</SelectItem>
                     <SelectItem value="Cerai Hidup">Cerai Hidup</SelectItem>
-                    <SelectItem value="Cerai Mati">Cerai Mati</SelectItem>
+                    <SelectItem value="Cerai Meninggal">Cerai Meninggal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -592,7 +592,7 @@ export function EditUserView({ userId }: EditUserViewProps) {
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between pt-2 pb-6">
-          <Link href="/admin/users" passHref>
+          <Link href="/users" passHref>
             <Button
               type="button"
               variant="outline"

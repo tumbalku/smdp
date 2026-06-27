@@ -182,7 +182,7 @@ export function UsersView() {
             <Upload className="w-4 h-4" />
             Impor CSV
           </Button>
-          <Link href="/admin/users/categories" passHref>
+          <Link href="/users/categories" passHref>
             <Button
               variant="outline"
               className="font-bold text-xs flex items-center gap-1.5 border-[#6c63ff]/20 bg-[#6c63ff]/5 text-[#6c63ff] hover:bg-[#6c63ff]/10"
@@ -191,7 +191,7 @@ export function UsersView() {
               Kelola Kategori
             </Button>
           </Link>
-          <Link href="/admin/users/create" passHref>
+          <Link href="/users/create" passHref>
             <Button
               className="font-bold text-xs flex items-center gap-1.5 bg-[#6c63ff] hover:bg-[#6c63ff]/90 text-white"
             >

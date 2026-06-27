@@ -39,24 +39,31 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // Role-based route guard
-  if (pathname.startsWith("/admin")) {
-    const roles = token.roles || [token.role];
-    const hasAdmin = roles.includes("HR_ADMIN");
-    const hasStaff = roles.includes("STAFF");
+  // Role-based route guard untuk path yang memerlukan akses terbatas.
+  // Authorization detail (per-role) dilakukan di page.tsx masing-masing via requireRole().
+  // Middleware ini hanya melakukan pengecekan kasar untuk meringankan beban server.
+  const roles = (token?.roles as string[]) || (token?.role ? [token.role] : []);
+  const hasAdmin = roles.includes("HR_ADMIN");
+  const hasStaff = roles.includes("STAFF");
+
+  // Path yang hanya boleh diakses oleh HR_ADMIN atau STAFF
+  const adminStaffPaths = ["/verification"];
+  if (adminStaffPaths.some((p) => pathname.startsWith(p))) {
     if (!hasAdmin && !hasStaff) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
-    // Staff specific restriction: Staff cannot visit users, doc types, categories, or logs
-    if (hasStaff && !hasAdmin) {
-      const adminOnlyPaths = ["/admin/users", "/admin/document-types", "/admin/security-logs", "/admin/categories"];
-      if (adminOnlyPaths.some((p) => pathname.startsWith(p))) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
+  }
+
+  // Path yang hanya boleh diakses oleh HR_ADMIN
+  const adminOnlyPaths = ["/users", "/document-types", "/security-logs", "/categories"];
+  if (adminOnlyPaths.some((p) => pathname.startsWith(p))) {
+    if (!hasAdmin) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }
 
   return NextResponse.next();
+
 }
 
 export const config = {

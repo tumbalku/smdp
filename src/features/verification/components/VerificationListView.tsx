@@ -11,10 +11,12 @@ export function VerificationListView() {
   const {
     documents,
     loading,
+    deletingId,
     errorMsg,
     filters,
     setFilters,
     handleSearchSubmit,
+    handleDeleteDocument,
   } = useVerificationList();
 
   return (
@@ -23,7 +25,7 @@ export function VerificationListView() {
       <div>
         <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Verifikasi Berkas Pegawai</h1>
         <p className="text-xs font-bold text-muted-foreground mt-1">
-          Tinjau, setujui, atau tolak berkas kualifikasi kepegawaian medis dan administratif.
+          Tinjau, setujui, tolak, atau kelola berkas kualifikasi kepegawaian medis dan administratif.
         </p>
       </div>
 
@@ -42,7 +44,12 @@ export function VerificationListView() {
       />
 
       {/* Main Table Card */}
-      <VerificationListTable documents={documents} loading={loading} />
+      <VerificationListTable
+        documents={documents}
+        loading={loading}
+        onDelete={handleDeleteDocument}
+        deletingId={deletingId}
+      />
     </div>
   );
 }

@@ -273,7 +273,7 @@ export function UserFormModal({
                     <SelectItem value="Belum Kawin">Belum Kawin</SelectItem>
                     <SelectItem value="Kawin">Kawin</SelectItem>
                     <SelectItem value="Cerai Hidup">Cerai Hidup</SelectItem>
-                    <SelectItem value="Cerai Mati">Cerai Mati</SelectItem>
+                    <SelectItem value="Cerai Meninggal">Cerai Meninggal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

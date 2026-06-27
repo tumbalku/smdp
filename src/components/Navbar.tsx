@@ -18,10 +18,11 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/admin/document-types": "Konfigurasi Dokumen",
-  "/admin/security-logs": "Audit Log Keamanan",
-  "/admin/users": "Manajemen Pegawai",
-  "/admin/categories": "Kelola Kategori Kepegawaian",
+  "/document-types": "Konfigurasi Dokumen",
+  "/security-logs": "Audit Log Keamanan",
+  "/users": "Manajemen Pegawai",
+  "/categories": "Kelola Kategori Kepegawaian",
+  "/verification": "Verifikasi Berkas",
   "/profile": "Profil Saya",
 };
 

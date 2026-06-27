@@ -27,7 +27,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (session.user.role !== Role.EMPLOYEE) {
+    const userRoles = session.user.roles || [session.user.role];
+
+    if (!userRoles.includes(Role.EMPLOYEE)) {
       logSecurityEvent({
         actorName: session.user.name || session.user.email || "Unknown",
         actorRole: session.user.role,
@@ -110,13 +112,16 @@ export async function POST(req: NextRequest) {
     // Validate target positions
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { employeePosition: true },
+      include: { employeePosition: true, professionGroup: true },
     });
     const userPositionName = user?.employeePosition?.name || null;
+    const userProfName = user?.professionGroup?.name || null;
 
     if (docType.targetPositions) {
       const allowed = docType.targetPositions.split(",").map((p) => p.trim());
-      if (!userPositionName || !allowed.includes(userPositionName)) {
+      const isPositionAllowed = (userPositionName && allowed.includes(userPositionName)) || (userProfName && allowed.includes(userProfName));
+      if (!isPositionAllowed) {
+        const currentLabel = userProfName || userPositionName || "-";
         logSecurityEvent({
           actorName: session.user.name || session.user.email || "Unknown",
           actorRole: session.user.role,
@@ -125,14 +130,14 @@ export async function POST(req: NextRequest) {
           resource: `Upload-${docType.name}`,
           ipAddress: getClientIp(req as unknown as Request),
           status: LogStatus.FAILED,
-          metadata: { error: `Pegawai posisi "${userPositionName || '-'}" tidak memiliki wewenang untuk mengunggah dokumen "${docType.name}".` },
+          metadata: { error: `Pegawai posisi/kelompok "${currentLabel}" tidak memiliki wewenang untuk mengunggah dokumen "${docType.name}".` },
         });
         return NextResponse.json(
           {
             data: null,
             error: {
               code: "FORBIDDEN",
-              message: `Posisi Anda (${userPositionName || '-'}) tidak memiliki wewenang untuk mengunggah dokumen "${docType.name}".`,
+              message: `Posisi/Kelompok Anda (${currentLabel}) tidak memiliki wewenang untuk mengunggah dokumen "${docType.name}".`,
             },
           },
           { status: 403 }

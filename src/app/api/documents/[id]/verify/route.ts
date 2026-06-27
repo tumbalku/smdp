@@ -30,7 +30,9 @@ export async function POST(
       );
     }
 
-    if (session.user.role !== Role.HR_ADMIN && session.user.role !== Role.STAFF) {
+    const userRoles = session.user.roles || [session.user.role];
+    const hasAdminOrStaff = userRoles.includes(Role.HR_ADMIN) || userRoles.includes(Role.STAFF);
+    if (!hasAdminOrStaff) {
       logSecurityEvent({
         actorName: session.user.name || session.user.email || "Unknown",
         actorRole: session.user.role,

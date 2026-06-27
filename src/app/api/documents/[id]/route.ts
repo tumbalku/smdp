@@ -38,11 +38,9 @@ export async function GET(
     }
 
     // Access check: Owner can view, Admin/Staff can view
-    if (
-      session.user.role !== Role.HR_ADMIN &&
-      session.user.role !== Role.STAFF &&
-      document.ownerId !== session.user.id
-    ) {
+    const userRoles = session.user.roles || [session.user.role];
+    const hasAdminOrStaff = userRoles.includes(Role.HR_ADMIN) || userRoles.includes(Role.STAFF);
+    if (!hasAdminOrStaff && document.ownerId !== session.user.id) {
       return NextResponse.json(
         { data: null, error: { code: "FORBIDDEN", message: "Akses ditolak." } },
         { status: 403 }
@@ -115,8 +113,10 @@ export async function DELETE(
       );
     }
 
-    // Access check: Only owner of the document can delete it
-    if (document.ownerId !== session.user.id) {
+    // Access check: Owner or Admin/Staff can delete it
+    const userRoles = session.user.roles || [session.user.role];
+    const hasAdminOrStaff = userRoles.includes(Role.HR_ADMIN) || userRoles.includes(Role.STAFF);
+    if (!hasAdminOrStaff && document.ownerId !== session.user.id) {
       logSecurityEvent({
         actorName: session.user.name || session.user.email || "Unknown",
         actorRole: session.user.role,
@@ -125,14 +125,14 @@ export async function DELETE(
         resource: `DOC-${id.slice(0, 8).toUpperCase()}`,
         ipAddress: getClientIp(req as unknown as Request),
         status: LogStatus.FAILED,
-        metadata: { error: "Hanya pemilik dokumen yang dapat menghapus." },
+        metadata: { error: "Akses ditolak: Tidak memiliki wewenang menghapus dokumen ini." },
       });
       return NextResponse.json(
         {
           data: null,
           error: {
             code: "FORBIDDEN",
-            message: "Hanya pemilik dokumen yang dapat menghapus.",
+            message: "Anda tidak memiliki wewenang untuk menghapus dokumen ini.",
           },
         },
         { status: 403 }

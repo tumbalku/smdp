@@ -32,6 +32,15 @@ import { EmploymentStatusOption, ProfessionGroupOption, EmployeeRankOption, Work
 
 type DataType = "STATUS" | "GROUP" | "PROFESSION" | "POSITION" | "RANK" | "WORKPLACE";
 
+const DATA_TYPE_LABELS: Record<DataType, string> = {
+  STATUS: "Status Kepegawaian (Induk)",
+  GROUP: "Jenis Kepegawaian (Sub-Status)",
+  PROFESSION: "Kelompok Profesi (Induk)",
+  POSITION: "Jabatan (Sub-Profesi)",
+  RANK: "Pangkat / Golongan (Induk)",
+  WORKPLACE: "Tempat Tugas (Induk)",
+};
+
 export function CategoriesView() {
   const [employmentStatuses, setEmploymentStatuses] = useState<EmploymentStatusOption[]>([]);
   const [professionGroups, setProfessionGroups] = useState<ProfessionGroupOption[]>([]);
@@ -240,7 +249,9 @@ export function CategoriesView() {
                   <Label htmlFor="pageMasterType" className="text-xs font-bold text-muted-foreground">Tipe Data *</Label>
                   <Select disabled={!!editingItem} value={type} onValueChange={(val) => setType((val || "STATUS") as DataType)}>
                     <SelectTrigger id="pageMasterType" className="w-full">
-                      <SelectValue placeholder="Pilih Tipe Data" />
+                      <SelectValue placeholder="Pilih Tipe Data">
+                        {type ? DATA_TYPE_LABELS[type] : "Pilih Tipe Data"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="STATUS">Status Kepegawaian (Induk)</SelectItem>
@@ -261,7 +272,13 @@ export function CategoriesView() {
                     </Label>
                     <Select value={parentId} onValueChange={(val) => setParentId(val || "")}>
                       <SelectTrigger id="pageParentSelect" className="w-full">
-                        <SelectValue placeholder={type === "GROUP" ? "Pilih Status Induk" : "Pilih Kelompok Induk"} />
+                        <SelectValue placeholder={type === "GROUP" ? "Pilih Status Induk" : "Pilih Kelompok Induk"}>
+                          {parentId
+                            ? type === "GROUP"
+                              ? employmentStatuses.find((s) => s.id === parentId)?.name
+                              : professionGroups.find((p) => p.id === parentId)?.name
+                            : (type === "GROUP" ? "Pilih Status Induk" : "Pilih Kelompok Induk")}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {type === "GROUP"

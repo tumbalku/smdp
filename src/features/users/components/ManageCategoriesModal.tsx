@@ -46,6 +46,15 @@ interface ManageCategoriesModalProps {
 
 type DataType = "STATUS" | "GROUP" | "PROFESSION" | "POSITION" | "RANK" | "WORKPLACE";
 
+const DATA_TYPE_LABELS: Record<DataType, string> = {
+  STATUS: "Status Kepegawaian (Induk)",
+  GROUP: "Jenis Kepegawaian (Sub-Status)",
+  PROFESSION: "Kelompok Profesi (Induk)",
+  POSITION: "Jabatan (Sub-Profesi)",
+  RANK: "Pangkat / Golongan (Induk)",
+  WORKPLACE: "Tempat Tugas (Induk)",
+};
+
 export function ManageCategoriesModal({
   open,
   onOpenChange,
@@ -219,7 +228,9 @@ export function ManageCategoriesModal({
                 <Label htmlFor="masterType" className="text-xs font-bold text-muted-foreground">Tipe Data *</Label>
                 <Select disabled={!!editingItem} value={type} onValueChange={(val) => setType((val || "STATUS") as DataType)}>
                   <SelectTrigger id="masterType" className="w-full">
-                    <SelectValue placeholder="Pilih Tipe Data" />
+                    <SelectValue placeholder="Pilih Tipe Data">
+                      {type ? DATA_TYPE_LABELS[type] : "Pilih Tipe Data"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="STATUS">Status Kepegawaian (Induk)</SelectItem>
@@ -240,7 +251,13 @@ export function ManageCategoriesModal({
                   </Label>
                   <Select value={parentId} onValueChange={(val) => setParentId(val || "")}>
                     <SelectTrigger id="parentSelect" className="w-full">
-                      <SelectValue placeholder={type === "GROUP" ? "Pilih Status Induk" : "Pilih Kelompok Induk"} />
+                      <SelectValue placeholder={type === "GROUP" ? "Pilih Status Induk" : "Pilih Kelompok Induk"}>
+                        {parentId
+                          ? type === "GROUP"
+                            ? employmentStatuses.find((s) => s.id === parentId)?.name
+                            : professionGroups.find((p) => p.id === parentId)?.name
+                          : (type === "GROUP" ? "Pilih Status Induk" : "Pilih Kelompok Induk")}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {type === "GROUP"

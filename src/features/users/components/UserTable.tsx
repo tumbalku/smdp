@@ -144,7 +144,7 @@ export function UserTable({ users, onChangePassword, onDelete }: UserTableProps)
             </TableCell>
             <TableCell className="text-right pr-4 align-middle">
               <div className="flex items-center justify-end gap-2">
-                <Link href={`/admin/users/edit/${user.id}`} passHref>
+                <Link href={`/users/edit/${user.id}`} passHref>
                   <Button
                     variant="outline"
                     size="sm"

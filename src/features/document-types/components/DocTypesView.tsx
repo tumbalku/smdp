@@ -62,7 +62,7 @@ export function DocTypesView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/admin/document-types/create" passHref>
+          <Link href="/document-types/create" passHref>
             <Button
               className="font-bold text-xs flex items-center gap-1.5 bg-[#6c63ff] hover:bg-[#6c63ff]/90 text-white"
             >

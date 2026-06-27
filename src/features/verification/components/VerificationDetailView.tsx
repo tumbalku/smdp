@@ -2,8 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Loader2,
@@ -13,6 +15,7 @@ import {
   User,
   FileText,
   Calendar,
+  Trash2,
 } from "lucide-react";
 import { useVerification } from "../hooks/useVerification";
 import { DocumentPreview } from "./DocumentPreview";
@@ -24,10 +27,12 @@ interface VerificationDetailViewProps {
 }
 
 export function VerificationDetailView({ documentId }: VerificationDetailViewProps) {
+  const router = useRouter();
   const {
     doc,
     loading,
     submitLoading,
+    deleteLoading,
     errorMsg,
     successMsg,
     rejectMode,
@@ -35,6 +40,7 @@ export function VerificationDetailView({ documentId }: VerificationDetailViewPro
     reviewNote,
     setReviewNote,
     handleAction,
+    handleDelete,
   } = useVerification(documentId);
 
   const formatDate = (dateStr: string | null) => {
@@ -70,7 +76,7 @@ export function VerificationDetailView({ documentId }: VerificationDetailViewPro
     return (
       <div className="p-8 max-w-4xl mx-auto space-y-4">
         <Link
-          href="/admin/verification"
+          href="/verification"
           className="inline-flex items-center justify-center rounded-md border border-input bg-background hover:bg-slate-100 h-8 px-3 text-xs font-semibold text-slate-700 transition-colors"
         >
           <ChevronLeft className="w-4 h-4 mr-1" /> Kembali ke Daftar
@@ -91,7 +97,7 @@ export function VerificationDetailView({ documentId }: VerificationDetailViewPro
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Link
-            href="/admin/verification"
+            href="/verification"
             className="inline-flex items-center justify-center rounded-lg border border-input bg-background hover:bg-muted h-9 w-9 text-foreground transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -104,7 +110,7 @@ export function VerificationDetailView({ documentId }: VerificationDetailViewPro
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Badge className={`text-xs font-bold px-3 py-1 ${doc.status === "APPROVED"
               ? "bg-emerald-500 hover:bg-emerald-600 text-white"
               : doc.status === "PENDING"
@@ -113,6 +119,20 @@ export function VerificationDetailView({ documentId }: VerificationDetailViewPro
             }`}>
             Status: {doc.status === "APPROVED" ? "Disetujui" : doc.status === "PENDING" ? "Menunggu Verifikasi" : "Ditolak"}
           </Badge>
+          <Button
+            variant="destructive"
+            size="sm"
+            disabled={deleteLoading}
+            onClick={() => handleDelete(() => router.push("/verification"))}
+            className="font-bold text-xs gap-1.5"
+          >
+            {deleteLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+            Hapus Berkas
+          </Button>
         </div>
       </div>
 

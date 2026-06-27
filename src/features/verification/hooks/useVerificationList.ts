@@ -4,6 +4,7 @@ import { DocumentRecord } from "../types";
 export function useVerificationList() {
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
 
   // Filters State
@@ -46,9 +47,32 @@ export function useVerificationList() {
     fetchDocuments();
   };
 
+  const handleDeleteDocument = async (docId: string) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus dokumen ini secara permanen?")) return;
+    setDeletingId(docId);
+    setErrorMsg("");
+    try {
+      const res = await fetch(`/api/documents/${docId}`, {
+        method: "DELETE",
+      });
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.error?.message || "Gagal menghapus dokumen.");
+      }
+      fetchDocuments();
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
+      setErrorMsg(error.message || "Gagal menghapus dokumen.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return {
     documents,
     loading,
+    deletingId,
     errorMsg,
     filters: {
       search,
@@ -61,5 +85,6 @@ export function useVerificationList() {
       setExpiryStatus,
     },
     handleSearchSubmit,
+    handleDeleteDocument,
   };
 }

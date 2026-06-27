@@ -63,7 +63,9 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Access control check
-    if (session.user.role !== Role.HR_ADMIN && session.user.role !== Role.STAFF && doc.ownerId !== session.user.id) {
+    const userRoles = session.user.roles || [session.user.role];
+    const hasAdminOrStaff = userRoles.includes(Role.HR_ADMIN) || userRoles.includes(Role.STAFF);
+    if (!hasAdminOrStaff && doc.ownerId !== session.user.id) {
       logSecurityEvent({
         actorName: session.user.name || session.user.email || "Unknown",
         actorRole: session.user.role,
