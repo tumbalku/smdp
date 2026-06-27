@@ -11,7 +11,8 @@ export async function GET() {
       orderBy: { name: "asc" },
     });
 
-    if (session?.user?.role === "EMPLOYEE") {
+    const roles = session?.user?.roles || (session?.user?.role ? [session.user.role] : []);
+    if (session?.user?.id && roles.includes("EMPLOYEE")) {
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
         include: { professionGroup: true },
@@ -44,7 +45,9 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user.role !== "HR_ADMIN" && session.user.role !== "STAFF")) {
+    const roles = session?.user?.roles || (session?.user?.role ? [session.user.role] : []);
+    const hasAdminOrStaff = roles.includes("HR_ADMIN") || roles.includes("STAFF");
+    if (!session || !hasAdminOrStaff) {
       return NextResponse.json(
         { data: null, error: { code: "UNAUTHORIZED", message: "Akses ditolak." } },
         { status: 403 }
@@ -92,7 +95,9 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user.role !== "HR_ADMIN" && session.user.role !== "STAFF")) {
+    const roles = session?.user?.roles || (session?.user?.role ? [session.user.role] : []);
+    const hasAdminOrStaff = roles.includes("HR_ADMIN") || roles.includes("STAFF");
+    if (!session || !hasAdminOrStaff) {
       return NextResponse.json(
         { data: null, error: { code: "UNAUTHORIZED", message: "Akses ditolak." } },
         { status: 403 }

@@ -25,68 +25,84 @@ interface SidebarProps {
 export function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
-
   const role = session?.user?.role;
 
   // Determine navigation menu items based on role
   const getNavLinks = () => {
-    if (role === "HR_ADMIN" || role === "STAFF") {
-      return [
-        {
-          href: "/admin/dashboard",
-          label: "Dashboard",
-          icon: LayoutDashboard,
-        },
-        {
-          href: "/admin/verification",
-          label: "Verifikasi Berkas",
-          icon: FileCheck,
-        },
-        {
-          href: "/admin/document-types",
-          label: "Konfigurasi Dokumen",
-          icon: Settings,
-        },
-        {
-          href: "/admin/security-logs",
-          label: "Audit Log Keamanan",
-          icon: ShieldAlert,
-        },
-        {
-          href: "/admin/users",
-          label: "Manajemen Pegawai",
-          icon: Users,
-        },
-        {
-          href: "/calendar",
-          label: "Kalender & Libur",
-          icon: Calendar,
-        },
-        {
-          href: "/profile",
-          label: "Profil Saya",
-          icon: User,
-        },
-      ];
-    } else {
-      return [
-        {
-          href: "/employee/dashboard",
-          label: "Dashboard Dokumen",
-          icon: FileCheck,
-        },
-        {
-          href: "/calendar",
-          label: "Kalender & Libur",
-          icon: Calendar,
-        },
-        {
-          href: "/profile",
-          label: "Profil Saya",
-          icon: User,
-        },
-      ];
+    const roles = session?.user?.roles ?? (session?.user?.role ? [session.user.role] : []);
+    
+    const hasAdmin = roles.includes("HR_ADMIN");
+    const hasStaff = roles.includes("STAFF");
+    const hasEmployee = roles.includes("EMPLOYEE");
+
+    const links = [];
+
+    // 1. Dashboard Link
+    if (hasAdmin || hasStaff) {
+      links.push({
+        href: "/admin/dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+      });
+    } else if (hasEmployee) {
+      links.push({
+        href: "/employee/dashboard",
+        label: "Dashboard Dokumen",
+        icon: FileCheck,
+      });
     }
+
+    // 2. Verifikasi Berkas (Admin or Staff)
+    if (hasAdmin || hasStaff) {
+      links.push({
+        href: "/admin/verification",
+        label: "Verifikasi Berkas",
+        icon: FileCheck,
+      });
+    }
+
+    // 3. Konfigurasi Dokumen (Admin only)
+    if (hasAdmin) {
+      links.push({
+        href: "/admin/document-types",
+        label: "Konfigurasi Dokumen",
+        icon: Settings,
+      });
+    }
+
+    // 4. Audit Log Keamanan (Admin only)
+    if (hasAdmin) {
+      links.push({
+        href: "/admin/security-logs",
+        label: "Audit Log Keamanan",
+        icon: ShieldAlert,
+      });
+    }
+
+    // 5. Manajemen Pegawai (Admin only)
+    if (hasAdmin) {
+      links.push({
+        href: "/admin/users",
+        label: "Manajemen Pegawai",
+        icon: Users,
+      });
+    }
+
+    // 6. Kalender & Libur (Everyone)
+    links.push({
+      href: "/calendar",
+      label: "Kalender & Libur",
+      icon: Calendar,
+    });
+
+    // 7. Profil Saya (Everyone)
+    links.push({
+      href: "/profile",
+      label: "Profil Saya",
+      icon: User,
+    });
+
+    return links;
   };
 
   const navLinks = getNavLinks();

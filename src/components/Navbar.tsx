@@ -45,7 +45,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
     .slice(0, 2);
 
   const getDashboardHref = () => {
-    if (session?.user?.role === "HR_ADMIN" || session?.user?.role === "STAFF") {
+    const roles = session?.user?.roles ?? (session?.user?.role ? [session.user.role] : []);
+    if (roles.includes("HR_ADMIN") || roles.includes("STAFF")) {
       return "/admin/dashboard";
     }
     return "/employee/dashboard";

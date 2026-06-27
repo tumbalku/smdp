@@ -15,7 +15,10 @@ export async function verifyApiSession(allowedRoles?: string[]) {
     };
   }
 
-  if (allowedRoles && !allowedRoles.includes(session.user.role)) {
+  const roles = session.user.roles || [session.user.role];
+  const hasAccess = allowedRoles ? roles.some((r) => allowedRoles.includes(r)) : true;
+
+  if (allowedRoles && !hasAccess) {
     return {
       session: null,
       errorResponse: NextResponse.json(

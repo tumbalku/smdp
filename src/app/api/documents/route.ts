@@ -18,13 +18,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { role, id: userId } = session.user;
+    const roles = session.user.roles || [session.user.role];
+    const { id: userId } = session.user;
 
-    if (role === Role.EMPLOYEE) {
+    const { searchParams } = new URL(req.url);
+    const personal = searchParams.get("personal") === "true";
+
+    const hasEmployee = roles.includes(Role.EMPLOYEE);
+    const hasAdminOrStaff = roles.includes(Role.HR_ADMIN) || roles.includes(Role.STAFF);
+
+    if (hasEmployee && (personal || !hasAdminOrStaff)) {
       const documents = await getEmployeeDocuments(userId);
       return NextResponse.json({ data: documents, error: null });
-    } else if (role === Role.HR_ADMIN || role === Role.STAFF) {
-      const { searchParams } = new URL(req.url);
+    } else if (hasAdminOrStaff) {
       const status = searchParams.get("status") || "ALL";
       const expiryStatus = searchParams.get("expiryStatus") || "ALL";
       const search = searchParams.get("search") || "";

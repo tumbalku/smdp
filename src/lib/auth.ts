@@ -16,6 +16,7 @@ export const authOptions: AuthOptions = {
         try {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
+            include: { roles: true },
           });
           if (!user) return null;
           const isValid = await bcrypt.compare(
@@ -23,11 +24,18 @@ export const authOptions: AuthOptions = {
             user.passwordHash
           );
           if (!isValid) return null;
+
+          const mappedRoles = user.roles.map((r) => r.role);
+          if (mappedRoles.length === 0) {
+            mappedRoles.push(user.role);
+          }
+
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
+            roles: mappedRoles,
           } as User;
         } catch (error) {
           console.error("Auth authorize error:", error);
@@ -41,6 +49,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.roles = user.roles;
       }
       return token;
     },
@@ -48,6 +57,7 @@ export const authOptions: AuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.roles = token.roles as string[];
       }
       return session;
     },
