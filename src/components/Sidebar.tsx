@@ -48,11 +48,6 @@ export function Sidebar({ onClose }: SidebarProps) {
           icon: Settings,
         },
         {
-          href: "/admin/categories",
-          label: "Kelola Kategori",
-          icon: Layers,
-        },
-        {
           href: "/admin/security-logs",
           label: "Audit Log Keamanan",
           icon: ShieldAlert,

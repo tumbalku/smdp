@@ -377,3 +377,85 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: { message: errorMsg } }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  const ip = getClientIp(req);
+
+  if (!session || !session.user) {
+    return NextResponse.json({ error: { message: "Unauthorized" } }, { status: 401 });
+  }
+
+  if (session.user.role !== "HR_ADMIN" && session.user.role !== "STAFF") {
+    return NextResponse.json({ error: { message: "Forbidden" } }, { status: 403 });
+  }
+
+  const { searchParams } = req.nextUrl;
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ error: { message: "ID parameter is required" } }, { status: 400 });
+  }
+
+  if (session.user.id === id) {
+    return NextResponse.json({ error: { message: "Anda tidak dapat menghapus akun Anda sendiri." } }, { status: 400 });
+  }
+
+  try {
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    if (!targetUser) {
+      return NextResponse.json({ error: { message: "User tidak ditemukan." } }, { status: 404 });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Set reviewedById to null in VerificationHistory
+      await tx.verificationHistory.updateMany({
+        where: { reviewedById: id },
+        data: { reviewedById: null },
+      });
+
+      // 2. Set actorId to null in SecurityLog
+      await tx.securityLog.updateMany({
+        where: { actorId: id },
+        data: { actorId: null },
+      });
+
+      // 3. UserRole has Cascade deletion, but we can explicitly clean it
+      await tx.userRole.deleteMany({
+        where: { userId: id },
+      });
+
+      // 4. Finally, delete the User
+      await tx.user.delete({
+        where: { id },
+      });
+    });
+
+    logSecurityEvent({
+      actorName: session.user.name || "Admin/Staff",
+      actorRole: session.user.role,
+      actorId: session.user.id,
+      eventType: EventType.USER_UPDATED,
+      resource: `USER-${id}`,
+      ipAddress: ip,
+      status: LogStatus.SUCCESS,
+      metadata: { action: "DELETE_USER", deletedUserEmail: targetUser.email },
+    });
+
+    return NextResponse.json({ message: "Pegawai berhasil dihapus." });
+  } catch (err: unknown) {
+    console.error("[Users API DELETE] Error:", err);
+    const errorMsg = err instanceof Error ? err.message : "Internal Server Error";
+    logSecurityEvent({
+      actorName: session?.user?.name || "Admin/Staff",
+      actorRole: session?.user?.role || "HR_ADMIN",
+      actorId: session?.user?.id || null,
+      eventType: EventType.USER_UPDATED,
+      resource: `USER-${id}`,
+      ipAddress: ip,
+      status: LogStatus.FAILED,
+      metadata: { error: errorMsg },
+    });
+    return NextResponse.json({ error: { message: errorMsg } }, { status: 500 });
+  }
+}

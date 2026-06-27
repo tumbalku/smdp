@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useDocumentTypes } from "../hooks/useDocumentTypes";
 import { DocTypeTable } from "./DocTypeTable";
-import { DocTypeFormModal } from "./DocTypeFormModal";
+import Link from "next/link";
 
 export function DocTypesView() {
   const {
@@ -30,16 +30,10 @@ export function DocTypesView() {
     isChanged,
     positions,
 
-    // Create Modal triggers
-    createOpen,
-    setCreateOpen,
-    createLoading,
-
     // Actions
     handleFieldChange,
     handleFormatToggle,
     handleSaveChanges,
-    handleCreate,
     handleDelete,
   } = useDocumentTypes();
 
@@ -55,7 +49,7 @@ export function DocTypesView() {
   const maxLimit = editedTypes.length > 0 ? Math.max(...editedTypes.map(t => t.maxSize)) : 0;
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 animate-fadeIn" id="document-types-page-container">
+    <div className="page-container animate-fadeIn" id="document-types-page-container">
       {/* Title Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/80 pb-5">
         <div>
@@ -68,13 +62,14 @@ export function DocTypesView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setCreateOpen(true)}
-            className="font-bold text-xs flex items-center gap-1.5 bg-[#6c63ff] hover:bg-[#6c63ff]/90 text-white"
-          >
-            <Plus className="w-4 h-4" />
-            Tambah Jenis Dokumen
-          </Button>
+          <Link href="/admin/document-types/create" passHref>
+            <Button
+              className="font-bold text-xs flex items-center gap-1.5 bg-[#6c63ff] hover:bg-[#6c63ff]/90 text-white"
+            >
+              <Plus className="w-4 h-4" />
+              Tambah Jenis Dokumen
+            </Button>
+          </Link>
           <Button
             onClick={handleSaveChanges}
             disabled={!isChanged || saving}
@@ -186,15 +181,6 @@ export function DocTypesView() {
           )}
         </CardContent>
       </Card>
-
-      {/* Add Document Type Dialog */}
-      <DocTypeFormModal
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        loading={createLoading}
-        onSubmit={handleCreate}
-        positions={positions}
-      />
     </div>
   );
 }

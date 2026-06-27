@@ -1,17 +1,5 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { LandingPageView } from "@/features/landing-page/components/LandingPageView";
 
-export default async function IndexPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  if (session.user.role === "HR_ADMIN" || session.user.role === "STAFF") {
-    redirect("/admin/dashboard");
-  } else {
-    redirect("/employee/dashboard");
-  }
+export default function IndexPage() {
+  return <LandingPageView />;
 }

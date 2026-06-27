@@ -33,6 +33,11 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Allow public access to the root page
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
+
   // Protect all other routes
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));

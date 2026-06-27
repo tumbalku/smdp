@@ -1,7 +1,9 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { KeyRound } from "lucide-react";
+import { KeyRound, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -14,11 +16,12 @@ import { User } from "../types";
 
 interface UserTableProps {
   users: User[];
-  onEdit: (user: User) => void;
   onChangePassword: (user: User) => void;
+  onDelete: (user: User) => void;
 }
 
-export function UserTable({ users, onEdit, onChangePassword }: UserTableProps) {
+export function UserTable({ users, onChangePassword, onDelete }: UserTableProps) {
+  const { data: session } = useSession();
   const getRoleBadge = (roleName: string) => {
     switch (roleName) {
       case "HR_ADMIN":
@@ -141,14 +144,15 @@ export function UserTable({ users, onEdit, onChangePassword }: UserTableProps) {
             </TableCell>
             <TableCell className="text-right pr-4 align-middle">
               <div className="flex items-center justify-end gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-[10px] font-bold h-8 px-3"
-                  onClick={() => onEdit(user)}
-                >
-                  Edit Pegawai
-                </Button>
+                <Link href={`/admin/users/edit/${user.id}`} passHref>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-[10px] font-bold h-8 px-3"
+                  >
+                    Edit Pegawai
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   size="sm"
@@ -159,6 +163,22 @@ export function UserTable({ users, onEdit, onChangePassword }: UserTableProps) {
                   <KeyRound className="w-3 h-3 mr-1.5" />
                   Password
                 </Button>
+                {session?.user?.id !== user.id && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-[10px] font-bold h-8 px-3 text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950"
+                    onClick={() => {
+                      if (confirm(`Apakah Anda yakin ingin menghapus pegawai "${user.name}"? Semua data dokumen dan riwayat terkait akan ikut dihapus.`)) {
+                        onDelete(user);
+                      }
+                    }}
+                    title="Hapus pegawai ini"
+                  >
+                    <Trash2 className="w-3 h-3 mr-1.5" />
+                    Hapus
+                  </Button>
+                )}
               </div>
             </TableCell>
           </TableRow>

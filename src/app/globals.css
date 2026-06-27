@@ -4,6 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@utility page-container {
+  @apply p-4 md:p-8 max-w-7xl mx-auto space-y-6;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

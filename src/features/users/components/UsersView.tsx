@@ -2,6 +2,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -31,10 +33,8 @@ import {
 import { useUsers } from "../hooks/useUsers";
 import { UserFilters } from "./UserFilters";
 import { UserTable } from "./UserTable";
-import { UserFormModal } from "./UserFormModal";
 import { ResetPasswordModal } from "./ResetPasswordModal";
 import { ImportUsersModal } from "./ImportUsersModal";
-import { ManageCategoriesModal } from "./ManageCategoriesModal";
 
 const PIE_COLORS = ["#3b82f6", "#f43f5e", "#10b981", "#f59e0b", "#6c63ff", "#06b6d4"];
 
@@ -69,14 +69,6 @@ export function UsersView() {
     createLoading,
     handleCreateUser,
 
-    // Edit states & actions
-    editOpen,
-    setEditOpen,
-    editLoading,
-    selectedUser,
-    handleOpenEditRoles,
-    handleUpdateUser,
-
     // Change password states & actions
     pwOpen,
     setPwOpen,
@@ -85,16 +77,26 @@ export function UsersView() {
     pwError,
     handleOpenChangePw,
     handleChangePassword,
+    handleDeleteUser,
   } = useUsers();
+
+  const searchParams = useSearchParams();
 
   const [importOpen, setImportOpen] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
-  const [manageCategoriesOpen, setManageCategoriesOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Read success message from redirect (e.g. from edit page)
+  useEffect(() => {
+    const successFromRedirect = searchParams.get("success");
+    if (successFromRedirect) {
+      setSuccessMsg(successFromRedirect);
+    }
+  }, [searchParams, setSuccessMsg]);
 
   const handleExportCSV = async () => {
     setExportLoading(true);
@@ -149,7 +151,7 @@ export function UsersView() {
   );
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6" id="users-management-page-container">
+    <div className="page-container" id="users-management-page-container">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -180,21 +182,23 @@ export function UsersView() {
             <Upload className="w-4 h-4" />
             Impor CSV
           </Button>
-          <Button
-            onClick={() => setManageCategoriesOpen(true)}
-            variant="outline"
-            className="font-bold text-xs flex items-center gap-1.5 border-[#6c63ff]/20 bg-[#6c63ff]/5 text-[#6c63ff] hover:bg-[#6c63ff]/10"
-          >
-            <Layers className="w-4 h-4" />
-            Kelola Kategori
-          </Button>
-          <Button
-            onClick={() => setCreateOpen(true)}
-            className="font-bold text-xs flex items-center gap-1.5 bg-[#6c63ff] hover:bg-[#6c63ff]/90 text-white"
-          >
-            <Plus className="w-4 h-4" />
-            Tambah Pegawai Baru
-          </Button>
+          <Link href="/admin/users/categories" passHref>
+            <Button
+              variant="outline"
+              className="font-bold text-xs flex items-center gap-1.5 border-[#6c63ff]/20 bg-[#6c63ff]/5 text-[#6c63ff] hover:bg-[#6c63ff]/10"
+            >
+              <Layers className="w-4 h-4" />
+              Kelola Kategori
+            </Button>
+          </Link>
+          <Link href="/admin/users/create" passHref>
+            <Button
+              className="font-bold text-xs flex items-center gap-1.5 bg-[#6c63ff] hover:bg-[#6c63ff]/90 text-white"
+            >
+              <Plus className="w-4 h-4" />
+              Tambah Pegawai Baru
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -363,8 +367,8 @@ export function UsersView() {
           ) : (
             <UserTable
               users={users}
-              onEdit={handleOpenEditRoles}
               onChangePassword={handleOpenChangePw}
+              onDelete={(user) => handleDeleteUser(user.id)}
             />
           )}
         </CardContent>
@@ -401,36 +405,8 @@ export function UsersView() {
         </div>
       )}
 
-      {/* Create User Dialog */}
-      {createOpen && (
-        <UserFormModal
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-          isEdit={false}
-          loading={createLoading}
-          onSubmit={handleCreateUser}
-          employmentStatuses={employmentStatuses}
-          professionGroups={professionGroups}
-          employeeRanks={employeeRanks}
-          workplaces={workplaces}
-        />
-      )}
 
-      {/* Edit User Dialog */}
-      {editOpen && (
-        <UserFormModal
-          open={editOpen}
-          onOpenChange={(val) => !val && setEditOpen(false)}
-          isEdit={true}
-          loading={editLoading}
-          onSubmit={handleUpdateUser}
-          employmentStatuses={employmentStatuses}
-          professionGroups={professionGroups}
-          employeeRanks={employeeRanks}
-          workplaces={workplaces}
-          initialData={selectedUser}
-        />
-      )}
+
 
       {/* Change Password Dialog */}
       <ResetPasswordModal
@@ -456,19 +432,6 @@ export function UsersView() {
         }}
       />
 
-      {/* Manage Categories Dialog */}
-      <ManageCategoriesModal
-        open={manageCategoriesOpen}
-        onOpenChange={setManageCategoriesOpen}
-        employmentStatuses={employmentStatuses}
-        professionGroups={professionGroups}
-        employeeRanks={employeeRanks}
-        workplaces={workplaces}
-        onSuccess={() => {
-          fetchCategories();
-          setSuccessMsg("Kategori kepegawaian berhasil diperbarui.");
-        }}
-      />
     </div>
   );
 }

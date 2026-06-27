@@ -208,6 +208,25 @@ export function useUsers() {
     }
   };
 
+  const handleDeleteUser = async (id: string) => {
+    setErrorMsg("");
+    setSuccessMsg("");
+    try {
+      const res = await fetch(`/api/admin/users?id=${id}`, {
+        method: "DELETE",
+      });
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.error?.message || "Gagal menghapus pegawai.");
+      }
+      setSuccessMsg(resData.message || "Pegawai berhasil dihapus.");
+      fetchUsers();
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || "Gagal menghapus pegawai.");
+    }
+  };
+
   return {
     users,
     total,
@@ -255,5 +274,8 @@ export function useUsers() {
     pwError: modalState.pwError,
     handleOpenChangePw,
     handleChangePassword,
+
+    // Delete actions
+    handleDeleteUser,
   };
 }
