@@ -6,6 +6,7 @@ import { DocumentType, DocumentRecord as EmployeeDocumentRecord } from "../../do
 export function useUnifiedDashboard() {
   const { data: session } = useSession();
   const roles = session?.user?.roles ?? (session?.user?.role ? [session.user.role] : []);
+  const rolesString = roles.join(",");
 
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [adminDocs, setAdminDocs] = useState<AdminDocumentRecord[]>([]);
@@ -22,7 +23,7 @@ export function useUnifiedDashboard() {
   const isEmployee = roles.includes("EMPLOYEE");
 
   const fetchData = useCallback(async () => {
-    if (roles.length === 0) return;
+    if (rolesString.length === 0) return;
     setLoading(true);
     setErrorMsg("");
 
@@ -77,7 +78,7 @@ export function useUnifiedDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [roles, isAdmin, isEmployee]);
+  }, [rolesString, isAdmin, isEmployee]);
 
   useEffect(() => {
     fetchData();
